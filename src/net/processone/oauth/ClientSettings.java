@@ -1,17 +1,29 @@
-package oauh.test;
+package net.processone.oauth;
+
 
 /**
  * Most of the code based on http://code.google.com/p/jfireeagle/
  **/
 public class ClientSettings {
-	private Token userSpecificToken;
-	private Token generalToken;
-	private Token consumerToken;
 	private String webServiceUrl = WaveConstants.WEB_SERVICE_BASE_URL;
+
 	private String oAuthRequestTokenUrl = WaveConstants.OAUTH_REQUEST_TOKEN_URL;
+
 	private String oAuthAuthorizeUrl = WaveConstants.OAUTH_AUTHORIZE_URL;
+
 	private String oAuthAccessTokenUrl = WaveConstants.OAUTH_ACCESS_TOKEN_URL;
+
+	private String rpcHandler = WaveConstants.RPC_HANDLER;
+	
 	private String oAuthCallbackUrl = null;
+	
+	private Token consumerToken;
+
+	private Token requestToken;
+
+	public ClientSettings() {
+		requestToken = new Token();
+	}
 
 	public Token getConsumerToken() {
 		return consumerToken;
@@ -19,29 +31,6 @@ public class ClientSettings {
 
 	public void setConsumerToken(Token t) {
 		this.consumerToken = t;
-	}
-
-	public Token getUserSpecificToken() {
-		if (userSpecificToken == null) {
-			userSpecificToken = new Token();
-		}
-		return userSpecificToken;
-	}
-
-	public void setUserSpecificToken(Token t) {
-		this.userSpecificToken = t;
-	}
-
-	public Token getGeneralToken() {
-		if (generalToken == null) {
-			generalToken = new Token();
-		}
-
-		return generalToken;
-	}
-
-	public void setGeneralToken(Token t) {
-		this.generalToken = t;
 	}
 
 	public String getWebServiceUrl() {
@@ -82,6 +71,22 @@ public class ClientSettings {
 
 	public void setOAuthCallbackUrl(String u) {
 		this.oAuthCallbackUrl = u;
+	}
+
+	public Token getRequestToken() {
+		return requestToken;
+	}
+
+	public void setRequestToken(Token requestToken) {
+		this.requestToken = requestToken;
+	}
+
+	public void setRpcHandler(String rpcHandler) {
+		this.rpcHandler = rpcHandler;
+	}
+
+	public String getRpcHandler() {
+		return rpcHandler;
 	}
 
 }

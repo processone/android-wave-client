@@ -1,11 +1,11 @@
-package oauh.test;
+package net.processone.awc;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-public class OauthTest extends Activity {
+public class OAuthRedirect extends Activity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -13,8 +13,7 @@ public class OauthTest extends Activity {
 		setContentView(R.layout.main);
 
 		OneWave ow = (OneWave) getApplication();
-		String url = ow.oAuth.getUserAuthorizationUrl();
-		// oAuth.fetchAccessToken();
+		String url = ow.getUserAuthorizationUrl();
 
 		if (url == null) {
 			System.out.println("Phone off or Internet access is not allowed");

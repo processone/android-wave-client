@@ -1,4 +1,4 @@
-package oauh.test;
+package net.processone.oauth;
 
 import java.io.Serializable;
 
