@@ -1,28 +1,9 @@
 package com.google.wave.api;
 
-/* Copyright (c) 2009 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -56,15 +37,6 @@ import org.waveprotocol.wave.model.id.WaveletId;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.wave.api.AbstractRobot;
-import com.google.wave.api.Blip;
-import com.google.wave.api.BlipData;
-import com.google.wave.api.JsonRpcResponse;
-import com.google.wave.api.OperationQueue;
-import com.google.wave.api.OperationRequest;
-import com.google.wave.api.ParticipantProfile;
-import com.google.wave.api.Util;
-import com.google.wave.api.Wavelet;
 import com.google.wave.api.JsonRpcConstant.ParamsProperty;
 import com.google.wave.api.event.AnnotatedTextChangedEvent;
 import com.google.wave.api.event.BlipContributorsChangedEvent;
@@ -88,108 +60,7 @@ import com.google.wave.api.impl.EventMessageBundle;
 import com.google.wave.api.impl.GsonFactory;
 import com.google.wave.api.impl.WaveletData;
 
-//import org.waveprotocol.wave.model.id.WaveId;
-//import org.waveprotocol.wave.model.id.WaveletId;
-
-/**
- * A robot is an automated participant on a wave, that can read the contents of
- * a wave in which it participates, modify the wave's contents, add or remove
- * participants, and create new blips and new waves. In short, a robot can
- * perform many of the actions that any other participant can perform.
- * 
- * This is the abstract base class for a Google Wave Java robot, that supports:
- * <ul>
- * <li>Automatic events deserialization and operations serialization, in the
- * event based model</li>
- * <li>OAuth-secured operations submission, in the active model</li>
- * <li>Callback for profile request, including proxied/custom profile</li>
- * <li>Callback for capabilities.xml support</li>
- * <li>Callback for verification token request, that is used during the robot
- * registration process, to obtain consumer key and secret</li>
- * </ul>
- * 
- * Robot should implements the handlers of the events that it's interested in,
- * and specify the context and filter (if applicable) via the
- * {@link EventHandler.Capability} annotation. For example, if it is interested
- * in a {@link BlipSubmittedEvent}, and would like to get the parent blip with
- * the incoming event bundle, then it should implement this method:
- * 
- * <pre>
- *   &#064;Capability(contexts = {Context.PARENT, Context.SELF})
- *   public void onBlipSubmitted(BlipSubmittedEvent e) {
- *     ...
- *   }
- * </pre>
- * 
- * If the robot does not specify the {@link EventHandler.Capability} annotation,
- * the default contexts (parent and children), and empty filter will be provided
- * by default.
- */
 public abstract class AbstractWave implements EventHandler {
-
-	/**
-	 * Helper class to make outgoing HTTP request.
-	 */
-	static class HttpFetcher {
-
-		/** The {@code urlfetch} fetch timeout in ms. */
-		private static final int URLFETCH_TIMEOUT_IN_MS = 10 * 1000;
-
-		/**
-		 * Sends a request to the specified URL.
-		 * 
-		 * @param url
-		 *            the URL to send the request to.
-		 * @param contentType
-		 *            the content type of the request body.
-		 * @param body
-		 *            the request body.
-		 * @return the response from the server.
-		 * 
-		 * @throws IOException
-		 *             if there is a problem sending the request, or the HTTP
-		 *             response code is not HTTP OK.
-		 */
-		public String send(String url, String contentType, String body)
-				throws IOException {
-			OutputStreamWriter out = null;
-			try {
-				// Open the connection.
-				HttpURLConnection conn = (HttpURLConnection) new URL(url)
-						.openConnection();
-				conn.setReadTimeout(URLFETCH_TIMEOUT_IN_MS);
-
-				// Send the request body.
-				conn.setDoOutput(true);
-				conn.setRequestProperty("Content-Type", contentType);
-				out = new OutputStreamWriter(conn.getOutputStream(), UTF_8);
-				out.write(body);
-				out.flush();
-
-				// Read the response
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(conn.getInputStream()));
-				StringBuilder result = new StringBuilder();
-				String s;
-				while ((s = reader.readLine()) != null) {
-					result.append(s);
-				}
-
-				// Throw an exception if the response is not OK.
-				if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					LOG.severe("Invalid response: " + result.toString());
-					throw new IOException("HTTP Response code is not OK: "
-							+ conn.getResponseCode());
-				}
-
-				return result.toString();
-			} finally {
-				if (out != null) {
-					out.close();
-				}
-			}
-		}
-	}
 
 	/**
 	 * Helper class that contains various OAuth credentials.
@@ -276,9 +147,6 @@ public abstract class AbstractWave implements EventHandler {
 	private static final Gson SERIALIZER_FOR_ACTIVE_API = new GsonFactory()
 			.create(ACTIVE_API_OPERATION_NAMESPACE);
 
-	/** A utility to make HTTP requests. */
-	private final HttpFetcher httpFetcher;
-
 	/** A map of RPC server URL to its consumer data object. */
 	private final Map<String, ConsumerData> consumerData = new HashMap<String, ConsumerData>();
 
@@ -289,24 +157,6 @@ public abstract class AbstractWave implements EventHandler {
 	private String securityToken;
 
 	private boolean allowUnsignedRequests = true;
-
-	/**
-	 * Constructor.
-	 */
-	protected AbstractWave() {
-		this(new HttpFetcher());
-	}
-
-	/**
-	 * Constructor for testing.
-	 * 
-	 * @param httpFetcher
-	 *            a utility class to make outgoing HTTP requests. Specify a mock
-	 *            fetcher for unit tests.
-	 */
-	AbstractWave(HttpFetcher httpFetcher) {
-		this.httpFetcher = httpFetcher;
-	}
 
 	/**
 	 * Submits the pending operations associated with this {@link Wavelet}.
@@ -342,7 +192,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * The returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
 	 * the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join its queue
 	 * with another wavelet, for example, the event wavelet.
 	 * 
@@ -366,7 +216,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * The returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
 	 * the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join its queue
 	 * with another wavelet, for example, the event wavelet.
 	 * 
@@ -398,7 +248,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * The returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
 	 * the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join its queue
 	 * with another wavelet, for example, the event wavelet.
 	 * 
@@ -431,7 +281,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * The root wavelet of the new wave is returned with its own
 	 * {@link OperationQueue}. It is the responsibility of the caller to make
 	 * sure this wavelet gets submitted to the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param domain
@@ -454,7 +304,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * The root wavelet of the new wave is returned with its own
 	 * {@link OperationQueue}. It is the responsibility of the caller to make
 	 * sure this wavelet gets submitted to the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param domain
@@ -485,7 +335,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * The root wavelet of the new wave is returned with its own
 	 * {@link OperationQueue}. It is the responsibility of the caller to make
 	 * sure this wavelet gets submitted to the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param domain
@@ -521,7 +371,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * The root wavelet of the new wave is returned with its own
 	 * {@link OperationQueue}. It is the responsibility of the caller to make
 	 * sure this wavelet gets submitted to the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param domain
@@ -596,7 +446,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * Also, the returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
 	 * the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param waveId
@@ -624,7 +474,7 @@ public abstract class AbstractWave implements EventHandler {
 	 * Also, the returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
 	 * the server, either by calling
-	 * {@link AbstractRobot#submit(Wavelet, String)} or by calling
+	 * AbstractRobot#submit(Wavelet, String) or by calling
 	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param waveId
@@ -1110,7 +960,6 @@ public abstract class AbstractWave implements EventHandler {
 					consumerDataObj.getConsumerSecret());
 			LOG.info("JSON request to be sent: " + json);
 
-//			String responseString = httpFetcher.send(url, JSON_MIME_TYPE, json);
 			String responseString = send(rpcServerUrl, JSON_MIME_TYPE, json);
 
 			LOG.info("Response returned: " + responseString);
