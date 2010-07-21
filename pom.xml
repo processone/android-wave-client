@@ -8,5 +8,6 @@
   <name>android-wave-client</name>
   <modules>
     <module>android-gui</module>
+    <module>wave-api</module>
   </modules>
 </project>

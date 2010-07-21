@@ -14,36 +14,15 @@
 	<name>android-gui</name>
 	<dependencies>
 		<dependency>
-			<groupId>wave-api</groupId>
-			<artifactId>wave-robot-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.jdo</groupId>
-					<artifactId>jdo2-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>net.oauth.core</groupId>
-			<artifactId>oauth-httpclient4</artifactId>
-			<version>20090617</version>
-			<exclusions>
-				<exclusion>
-					<groupId>net.oauth.core</groupId>
-					<artifactId>oauth-consumer</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>com.google.android</groupId>
 			<artifactId>android</artifactId>
 			<version>2.1.2</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>android-wave-client</groupId>
+			<artifactId>wave-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>
