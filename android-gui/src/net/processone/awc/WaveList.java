@@ -2,6 +2,8 @@ package net.processone.awc;
 
 import java.util.List;
 
+import net.processone.wave.api.Wave;
+
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;

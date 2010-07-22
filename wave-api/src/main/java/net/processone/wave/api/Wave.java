@@ -1,4 +1,4 @@
-package net.processone.awc;
+package net.processone.wave.api;
 
 public class Wave {
 	private static final long serialVersionUID = -6553020195675162361L;
@@ -30,6 +30,10 @@ public class Wave {
 		this.title = title;
 	}
 
+	@Override
+	public String toString() {
+		return waveId + ": " + title;
+	}
 }
 
 /*

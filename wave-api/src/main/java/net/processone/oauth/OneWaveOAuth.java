@@ -215,4 +215,8 @@ public class OneWaveOAuth {
 			return this.value;
 		}
 	}
+
+	public ClientSettings getSettings() {
+		return settings;
+	}
 }

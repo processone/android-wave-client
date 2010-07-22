@@ -7,6 +7,8 @@ import java.util.List;
 import net.processone.oauth.ClientSettings;
 import net.processone.oauth.OneWaveOAuth;
 import net.processone.oauth.Token;
+import net.processone.wave.api.Wave;
+import net.processone.wave.api.WaveAPI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
