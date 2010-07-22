@@ -2,8 +2,6 @@ package net.processone.awc;
 
 import java.util.List;
 
-import net.processone.wave.api.Wave;
-
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -19,13 +17,15 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.wave.api.SearchResult.Digest;
+
 public class WaveList extends ListActivity {
 
 	static final int PROGRESS_DIALOG = 0;
 
 	private OneWave ow;
 
-	private static List<Wave> waveList;
+	private static List<Digest> waveList;
 
 	private WaveAdapter waveAdapter;
 
@@ -78,7 +78,7 @@ public class WaveList extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView listView, View view, int position,
 			long id) {
-		Wave wave = (Wave) listView.getItemAtPosition(position);
+		Digest wave = (Digest) listView.getItemAtPosition(position);
 		String waveId = wave.getWaveId();
 
 		Intent i = new Intent(this, WaveletList.class);
@@ -121,7 +121,7 @@ public class WaveList extends ListActivity {
 			return waveList.size();
 		}
 
-		public Wave getItem(int position) {
+		public Digest getItem(int position) {
 			return waveList.get(position);
 		}
 
@@ -140,7 +140,7 @@ public class WaveList extends ListActivity {
 				// Use convertView if it is available
 				view = convertView;
 			}
-			Wave wave = (Wave) waveList.get(position);
+			Digest wave = waveList.get(position);
 			TextView t = (TextView) view.findViewById(R.id.titleWave);
 			t.setText(wave.getTitle());
 			return view;

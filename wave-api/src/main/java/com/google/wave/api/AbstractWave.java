@@ -38,6 +38,7 @@ import org.waveprotocol.wave.model.id.WaveletId;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.wave.api.JsonRpcConstant.ParamsProperty;
+import com.google.wave.api.SearchResult.Digest;
 import com.google.wave.api.event.AnnotatedTextChangedEvent;
 import com.google.wave.api.event.BlipContributorsChangedEvent;
 import com.google.wave.api.event.BlipSubmittedEvent;
@@ -143,9 +144,17 @@ public abstract class AbstractWave implements EventHandler {
 	/** Serializer to serialize events and operations in the event-based mode. */
 	private static final Gson SERIALIZER = new GsonFactory().create();
 
+	static {
+		GsonFactory factory = new GsonFactory();
+		factory.registerTypeAdapter(SearchResult.class,
+				new SearchResultGsonAdaptor());
+		factory.registerTypeAdapter(Digest.class, new DigestGsonAdaptor());
+		SERIALIZER_FOR_ACTIVE_API = factory
+				.create(ACTIVE_API_OPERATION_NAMESPACE);
+	}
+
 	/** Serializer to serialize events and operations in active mode. */
-	private static final Gson SERIALIZER_FOR_ACTIVE_API = new GsonFactory()
-			.create(ACTIVE_API_OPERATION_NAMESPACE);
+	private static final Gson SERIALIZER_FOR_ACTIVE_API;
 
 	/** A map of RPC server URL to its consumer data object. */
 	private final Map<String, ConsumerData> consumerData = new HashMap<String, ConsumerData>();
@@ -191,10 +200,9 @@ public abstract class AbstractWave implements EventHandler {
 	 * 
 	 * The returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
-	 * the server, either by calling
-	 * AbstractRobot#submit(Wavelet, String) or by calling
-	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join its queue
-	 * with another wavelet, for example, the event wavelet.
+	 * the server, either by calling AbstractRobot#submit(Wavelet, String) or by
+	 * calling {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join
+	 * its queue with another wavelet, for example, the event wavelet.
 	 * 
 	 * @param waveId
 	 *            the id of the wave.
@@ -215,10 +223,9 @@ public abstract class AbstractWave implements EventHandler {
 	 * 
 	 * The returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
-	 * the server, either by calling
-	 * AbstractRobot#submit(Wavelet, String) or by calling
-	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join its queue
-	 * with another wavelet, for example, the event wavelet.
+	 * the server, either by calling AbstractRobot#submit(Wavelet, String) or by
+	 * calling {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join
+	 * its queue with another wavelet, for example, the event wavelet.
 	 * 
 	 * @param waveId
 	 *            the id of the wave.
@@ -247,10 +254,9 @@ public abstract class AbstractWave implements EventHandler {
 	 * 
 	 * The returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
-	 * the server, either by calling
-	 * AbstractRobot#submit(Wavelet, String) or by calling
-	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join its queue
-	 * with another wavelet, for example, the event wavelet.
+	 * the server, either by calling AbstractRobot#submit(Wavelet, String) or by
+	 * calling {@link Wavelet#submitWith(Wavelet)} on the new wavelet, to join
+	 * its queue with another wavelet, for example, the event wavelet.
 	 * 
 	 * @param waveId
 	 *            the id of the wave.
@@ -445,9 +451,8 @@ public abstract class AbstractWave implements EventHandler {
 	 * 
 	 * Also, the returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
-	 * the server, either by calling
-	 * AbstractRobot#submit(Wavelet, String) or by calling
-	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
+	 * the server, either by calling AbstractRobot#submit(Wavelet, String) or by
+	 * calling {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param waveId
 	 *            the id of the wave to fetch.
@@ -473,9 +478,8 @@ public abstract class AbstractWave implements EventHandler {
 	 * 
 	 * Also, the returned wavelet has its own {@link OperationQueue}. It is the
 	 * responsibility of the caller to make sure this wavelet gets submitted to
-	 * the server, either by calling
-	 * AbstractRobot#submit(Wavelet, String) or by calling
-	 * {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
+	 * the server, either by calling AbstractRobot#submit(Wavelet, String) or by
+	 * calling {@link Wavelet#submitWith(Wavelet)} on the new wavelet.
 	 * 
 	 * @param waveId
 	 *            the id of the wave to fetch.
@@ -652,16 +656,16 @@ public abstract class AbstractWave implements EventHandler {
 	 */
 	protected void setupOAuth(String consumerKey, String consumerSecret,
 			String rpcServerUrl) {
-		if (consumerKey == null || consumerSecret == null
-				|| rpcServerUrl == null) {
-			throw new IllegalArgumentException(
-					"Consumer Key, Consumer Secret and RPCServerURL "
-							+ "has to be non-null");
-		}
-		ConsumerData consumerDataObj = new ConsumerData(consumerKey,
-				consumerSecret, rpcServerUrl);
-		this.consumerData.put(rpcServerUrl, consumerDataObj);
-		setAllowUnsignedRequests(false);
+//		if (consumerKey == null || consumerSecret == null
+//				|| rpcServerUrl == null) {
+//			throw new IllegalArgumentException(
+//					"Consumer Key, Consumer Secret and RPCServerURL "
+//							+ "has to be non-null");
+//		}
+//		ConsumerData consumerDataObj = new ConsumerData(consumerKey,
+//				consumerSecret, rpcServerUrl);
+//		this.consumerData.put(rpcServerUrl, consumerDataObj);
+//		setAllowUnsignedRequests(false);
 	}
 
 	/**
@@ -935,58 +939,41 @@ public abstract class AbstractWave implements EventHandler {
 	 */
 	private List<JsonRpcResponse> makeRpc(OperationQueue opQueue,
 			String rpcServerUrl) throws IOException {
-		if (rpcServerUrl == null) {
-			throw new IllegalStateException("RPC Server URL is not set up.");
-		}
+//		if (rpcServerUrl == null) {
+//			throw new IllegalStateException("RPC Server URL is not set up.");
+//		}
 
-		ConsumerData consumerDataObj = consumerData.get(rpcServerUrl);
-		if (consumerDataObj == null) {
-			throw new IllegalStateException(
-					"Consumer key, consumer secret, and  JSON-RPC server URL "
-							+ "have to be set first, by calling AbstractRobot.setupOAuth(), before invoking "
-							+ "AbstractRobot.submit().");
-		}
-
-		// opQueue.notifyRobotInformation(PROTOCOL_VERSION, version);
+//		ConsumerData consumerDataObj = consumerData.get(rpcServerUrl);
+//		if (consumerDataObj == null) {
+//			throw new IllegalStateException(
+//					"Consumer key, consumer secret, and  JSON-RPC server URL "
+//							+ "have to be set first, by calling AbstractRobot.setupOAuth(), before invoking "
+//							+ "AbstractRobot.submit().");
+//		}
 
 		String json = SERIALIZER_FOR_ACTIVE_API.toJson(opQueue
 				.getPendingOperations(),
 				new TypeToken<List<OperationRequest>>() {
 				}.getType());
 
-		try {
-			String url = createOAuthUrlString(json, consumerDataObj
-					.getRpcServerUrl(), consumerDataObj.getConsumerKey(),
-					consumerDataObj.getConsumerSecret());
-			LOG.info("JSON request to be sent: " + json);
+		LOG.info("JSON request to be sent: " + json);
 
-			String responseString = send(rpcServerUrl, JSON_MIME_TYPE, json);
+		String responseString = send(rpcServerUrl, JSON_MIME_TYPE, json);
 
-			LOG.info("Response returned: " + responseString);
+		LOG.info("Response returned: " + responseString);
 
-			List<JsonRpcResponse> responses = null;
-			if (responseString.startsWith("[")) {
-				Type listType = new TypeToken<List<JsonRpcResponse>>() {
-				}.getType();
-				responses = SERIALIZER_FOR_ACTIVE_API.fromJson(responseString,
-						listType);
-			} else {
-				responses = new ArrayList<JsonRpcResponse>(1);
-				responses.add(SERIALIZER_FOR_ACTIVE_API.fromJson(
-						responseString, JsonRpcResponse.class));
-			}
-			return responses;
-		} catch (OAuthException e) {
-			LOG
-					.warning("OAuthException when constructing the OAuth parameters: "
-							+ e);
-			throw new IOException();
-		} catch (URISyntaxException e) {
-			LOG
-					.warning("URISyntaxException when constructing the OAuth parameters: "
-							+ e);
-			throw new IOException();
+		List<JsonRpcResponse> responses = null;
+		if (responseString.startsWith("[")) {
+			Type listType = new TypeToken<List<JsonRpcResponse>>() {
+			}.getType();
+			responses = SERIALIZER_FOR_ACTIVE_API.fromJson(responseString,
+					listType);
+		} else {
+			responses = new ArrayList<JsonRpcResponse>(1);
+			responses.add(SERIALIZER_FOR_ACTIVE_API.fromJson(responseString,
+					JsonRpcResponse.class));
 		}
+		return responses;
 	}
 
 	/**
@@ -1111,11 +1098,8 @@ public abstract class AbstractWave implements EventHandler {
 	 * @param consumerSecret
 	 *            the consumer secret.
 	 */
-	private static void validateOAuthRequest(String requestUrl, /*
-																 * Map<String,
-																 * String[]>
-																 */
-	HttpParams requestParams, String jsonBody, String consumerKey,
+	private static void validateOAuthRequest(String requestUrl,
+			HttpParams requestParams, String jsonBody, String consumerKey,
 			String consumerSecret) throws NoSuchAlgorithmException,
 			IOException, URISyntaxException, OAuthException {
 		List<OAuth.Parameter> params = new ArrayList<OAuth.Parameter>();
@@ -1147,8 +1131,27 @@ public abstract class AbstractWave implements EventHandler {
 		message.validateMessage(accessor, new SimpleOAuthValidator());
 	}
 
-	public abstract String send(String rpcHandler, String contentType, String jsonBody)
-			throws IOException;
+	public List<Digest> search(String query, String rpcServerUrl)
+			throws IOException {
+
+		ExtendedOperationQueue opQueue = new ExtendedOperationQueue();
+		opQueue.search(query);
+
+		JsonRpcResponse response = makeRpc(opQueue, rpcServerUrl).get(0);
+		if (response.isError()) {
+			throw new IOException(response.getErrorMessage());
+		}
+
+		opQueue.clear();
+
+		// Deserialize wavelets' digests.
+		SearchResult result = (SearchResult) response.getData().get(
+				ParamsProperty.SEARCH_RESULTS);
+		return result.getDigests();
+	}
+
+	public abstract String send(String rpcHandler, String contentType,
+			String jsonBody) throws IOException;
 
 	public void onAnnotatedTextChanged(AnnotatedTextChangedEvent event) {
 		// No-op.
