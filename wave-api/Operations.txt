@@ -1,0 +1,102 @@
+List of known Wave operations and their current implementation status
+---------------------------------------------------------------------
+wavelet.appendBlip - SUPPORTED
+Wavelet.reply(String)
+  
+wavelet.create - UNSUPPORTED
+Workaround through "robot.createWavelet"?
+  
+wavelet.removeSelf - UNSUPPORTED
+  
+wavelet.setTitle - SUPPORTED
+Wavelet.setTitle(String)
+
+wavelet.addParticipant - SUPPORTED
+Wavelet.getParticipants().add(String)
+  
+wavelet.removeParticipant - UNSUPPORTED
+
+wavelet.appendDatadoc - UNSUPPORTED
+  
+wavelet.setDatadoc - SUPPORTED
+Wavelet.getDataDocuments().set(String, String)
+Wavelet.getDataDocuments().remove(String)
+   
+wavelet.modifyTag - SUPPORTED
+Wavelet.getTags().add(String)
+Wavelet.getTags().remove(String)
+  
+wavelet.modifyParticipantRole - SUPPORTED
+Wavelet.getParticipants().setParticipantRole(String, Role)
+Roles:
+	FULL: Full member.
+    READ_ONLY: Can only view the wave.
+    UNKNOWN: Not recognized. Probably a newer server version.  
+
+blip.createChild - SUPPORTED
+Blip.reply();
+
+blip.delete - SUPPORTED
+Wavelet.delete(String)
+
+blip.setAuthor - UNSUPPORTED
+
+blip.setCreationTime - UNSUPPORTED
+
+document.deleteAnnotation - UNSUPPORTED
+
+document.setAnnotation - UNSUPPORTED
+
+document.setAnnotationNoRange - UNSUPPORTED
+
+document.append - UNSUPPORTED
+  
+document.appendMarkup - SUPPORTED
+Blip.appendMarkup(String)
+
+document.appendStyledText - UNSUPPORTED
+
+document.delete - UNSUPPORTED
+
+document.insert - UNSUPPORTED
+
+document.modify - SUPPORTED
+Blip, several operations.
+
+document.replace - UNSUPPORTED
+
+document.appendElement - UNSUPPORTED
+
+document.deleteElement - UNSUPPORTED
+
+document.insertElement - UNSUPPORTED
+  
+document.insertElementAfter - UNSUPPORTED
+
+document.insertElementBefore - UNSUPPORTED
+  
+document.modifyElementAttrs - UNSUPPORTED
+  
+document.replaceElement - UNSUPPORTED
+
+document.appendInlineBlip - UNSUPPORTED
+
+document.insertInlineBlip - SUPPORTED
+Blip.insertInlineBlip(int)
+
+document.insertInlineBlipAfterElement - UNSUPPORTED
+
+robot.folderAction - UNSUPPORTED
+But documented here: http://code.google.com/apis/wave/wavedata/
+
+robot.createWavelet - SUPPORTED
+WaveAPI.newWavelet(String, Set<String>, String, String)
+
+robot.fetchWave - SUPPORTED
+WaveAPI.fetchWavelet(WaveId, WaveletId)
+
+robot.notify - UNSUPPORTED 
+
+robot.search - SUPPORTED
+WaveAPI.search(String)
+Implemented as described in: http://code.google.com/apis/wave/wavedata/
