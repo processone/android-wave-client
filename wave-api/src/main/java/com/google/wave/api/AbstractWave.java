@@ -28,9 +28,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
 import org.waveprotocol.wave.model.id.WaveId;
 import org.waveprotocol.wave.model.id.WaveletId;
@@ -62,61 +59,6 @@ import com.google.wave.api.impl.GsonFactory;
 import com.google.wave.api.impl.WaveletData;
 
 public abstract class AbstractWave implements EventHandler {
-
-	/**
-	 * Helper class that contains various OAuth credentials.
-	 */
-	private static class ConsumerData {
-
-		/** Consumer key used to sign the operations in the active mode. */
-		private final String consumerKey;
-
-		/** Consumer secret used to sign the operations in the active mode. */
-		private final String consumerSecret;
-
-		/** The URL that handles the JSON-RPC request in the active mode. */
-		private final String rpcServerUrl;
-
-		/**
-		 * Constructor.
-		 * 
-		 * @param consumerKey
-		 *            the consumer key.
-		 * @param consumerSecret
-		 *            the consumer secret.
-		 * @param rpcServerUrl
-		 *            the URL of the JSON-RPC request handler.
-		 */
-		public ConsumerData(String consumerKey, String consumerSecret,
-				String rpcServerUrl) {
-			this.consumerKey = consumerKey;
-			this.consumerSecret = consumerSecret;
-			this.rpcServerUrl = rpcServerUrl;
-		}
-
-		/**
-		 * @return the consumer key used to sign the operations in the active
-		 *         mode.
-		 */
-		public String getConsumerKey() {
-			return consumerKey;
-		}
-
-		/**
-		 * @return the consumer secret used to sign the operations in the active
-		 *         mode.
-		 */
-		public String getConsumerSecret() {
-			return consumerSecret;
-		}
-
-		/**
-		 * @return the URL of the JSON-RPC request handler.
-		 */
-		public String getRpcServerUrl() {
-			return rpcServerUrl;
-		}
-	}
 
 	/** Some mime types. */
 	public static final String JSON_MIME_TYPE = "application/json; charset=utf-8";
@@ -157,8 +99,8 @@ public abstract class AbstractWave implements EventHandler {
 	private static final Gson SERIALIZER_FOR_ACTIVE_API;
 
 	/** A map of RPC server URL to its consumer data object. */
-	private final Map<String, ConsumerData> consumerData = new HashMap<String, ConsumerData>();
-
+	// private final Map<String, ConsumerData> consumerData = new
+	// HashMap<String, ConsumerData>();
 	/** The token used to verify author during the registration process. */
 	private String verificationToken;
 
@@ -529,74 +471,6 @@ public abstract class AbstractWave implements EventHandler {
 		return wavelet;
 	}
 
-	public void fetchWave(String rpcServerUrl) throws IOException {
-
-		String ROBOT_SEARCH_OP_JSON = "{'id':'op1','method':'wave.robot.search','params':{'query':'in:inbox'}}";
-
-		HttpPost post = new HttpPost(
-				"https://www-opensocial.googleusercontent.com/api/rpc");
-		post.setEntity(new StringEntity(ROBOT_SEARCH_OP_JSON));
-		post.setHeader(new BasicHeader("Content-Type", "application/json"));
-
-		// sign(post);
-
-		// ProgressDialog dialog = ProgressDialog.show(this, "",
-		// "Loading. Please wait...", true);
-		// dialog.show();
-
-		// HttpClient client = new DefaultHttpClient();
-		// HttpResponse response = client.execute(post);
-		//		
-		// JSONObject resp = new JSONObject(streamToString(response
-		// .getEntity().getContent()));
-		//		
-		//		
-		// response.getEntity().consumeContent();
-		//		
-		// List<Map<String, Object>> s = new ArrayList<Map<String, Object>>();
-		// JSONArray array = resp.getJSONObject("data").getJSONObject(
-		// "searchResults").getJSONArray("digests");
-		//		
-		// for (int i = 0; i < array.length(); i++) {
-		// JSONObject wavelet = array.getJSONObject(i);
-		// Map<String, Object> m = new TreeMap<String, Object>();
-		// m.put("title", wavelet.getString("title"));
-		// m.put("waveId", wavelet.getString("waveId"));
-		// s.add(m);
-		// }
-		//
-		// // Util.checkIsValidProxyForId(proxyForId);
-		// OperationQueue opQueue = new OperationQueue(proxyForId);
-		// opQueue.fetchWavelet(waveId, waveletId);
-		//
-		// Get the response for the robot.fetchWavelet() operation, which is the
-		// second operation, since makeRpc prepends the robot.notify()
-		// operation.
-		// JsonRpcResponse response = makeRpc(opQueue,
-		// "https://www-opensocial.googleusercontent.com/api/rpc").get(1);
-		// if (response.isError()) {
-		// throw new IOException(response.getErrorMessage());
-		// }
-		//
-		// // Deserialize wavelet.
-		// opQueue.clear();
-		// WaveletData waveletData = (WaveletData) response.getData().get(
-		// ParamsProperty.WAVELET_DATA);
-		// Map<String, Blip> blips = new HashMap<String, Blip>();
-		// Wavelet wavelet = Wavelet.deserialize(opQueue, blips, waveletData);
-
-		// // Deserialize blips.
-		// @SuppressWarnings("unchecked")
-		// Map<String, BlipData> blipDatas = (Map<String, BlipData>) response
-		// .getData().get(ParamsProperty.BLIPS);
-		// for (Entry<String, BlipData> entry : blipDatas.entrySet()) {
-		// blips.put(entry.getKey(), Blip.deserialize(opQueue, wavelet, entry
-		// .getValue()));
-		// }
-
-		// return wavelet;
-	}
-
 	/**
 	 * @return a custom profile based on "name" query parameter, or {@code null}
 	 *         if this robot doesn't support custom profile.
@@ -656,16 +530,16 @@ public abstract class AbstractWave implements EventHandler {
 	 */
 	protected void setupOAuth(String consumerKey, String consumerSecret,
 			String rpcServerUrl) {
-//		if (consumerKey == null || consumerSecret == null
-//				|| rpcServerUrl == null) {
-//			throw new IllegalArgumentException(
-//					"Consumer Key, Consumer Secret and RPCServerURL "
-//							+ "has to be non-null");
-//		}
-//		ConsumerData consumerDataObj = new ConsumerData(consumerKey,
-//				consumerSecret, rpcServerUrl);
-//		this.consumerData.put(rpcServerUrl, consumerDataObj);
-//		setAllowUnsignedRequests(false);
+		// if (consumerKey == null || consumerSecret == null
+		// || rpcServerUrl == null) {
+		// throw new IllegalArgumentException(
+		// "Consumer Key, Consumer Secret and RPCServerURL "
+		// + "has to be non-null");
+		// }
+		// ConsumerData consumerDataObj = new ConsumerData(consumerKey,
+		// consumerSecret, rpcServerUrl);
+		// this.consumerData.put(rpcServerUrl, consumerDataObj);
+		// setAllowUnsignedRequests(false);
 	}
 
 	/**
@@ -692,7 +566,7 @@ public abstract class AbstractWave implements EventHandler {
 	 *            whether or not unsigned requests from robot proxy are allowed.
 	 */
 	protected void setAllowUnsignedRequests(boolean allowUnsignedRequests) {
-		if (!allowUnsignedRequests && this.consumerData.isEmpty()) {
+		if (!allowUnsignedRequests) {
 			throw new IllegalArgumentException(
 					"Please call AbstractRobot.setupOAuth() first to "
 							+ "setup the consumer key and secret to validate the request.");
@@ -753,14 +627,16 @@ public abstract class AbstractWave implements EventHandler {
 	 * @param resp
 	 *            the HTTP response.
 	 */
-	private void processRpc(HttpRequest req, HttpResponse resp) {
+	private void processRpc(String req) {
 		// Deserialize and process the incoming events.
 		EventMessageBundle events = null;
+
 		try {
 			events = deserializeEvents(req);
+
 		} catch (IOException e) {
-			resp.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
-			return;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		OperationQueue operationQueue = events.getWavelet().getOperationQueue();
@@ -769,7 +645,8 @@ public abstract class AbstractWave implements EventHandler {
 		processEvents(events);
 
 		// Serialize the operations.
-		serializeOperations(operationQueue.getPendingOperations(), resp);
+		// serializeOperations(operationQueue.getPendingOperations(), resp);
+
 		operationQueue.clear();
 	}
 
@@ -839,27 +716,6 @@ public abstract class AbstractWave implements EventHandler {
 	}
 
 	/**
-	 * Computes this robot's hash, based on the capabilities.
-	 * 
-	 * @return a hash of this robot, computed from it's capabilities.
-	 */
-	protected String computeHash() {
-		long version = 0l;
-		// for (Entry<String, Capability> entry : capabilityMap.entrySet()) {
-		// long hash = entry.getKey().hashCode();
-		// Capability capability = entry.getValue();
-		// if (capability != null) {
-		// for (Context context : capability.contexts()) {
-		// hash = hash * 31 + context.name().hashCode();
-		// }
-		// hash = hash * 31 + capability.filter().hashCode();
-		// }
-		// version = version * 17 + hash;
-		// }
-		return Long.toHexString(version);
-	}
-
-	/**
 	 * Deserializes the given HTTP request's JSON body into an event message
 	 * bundle.
 	 * 
@@ -872,51 +728,40 @@ public abstract class AbstractWave implements EventHandler {
 	 * @throws IllegalArgumentException
 	 *             if the request is not signed properly.
 	 */
-	private EventMessageBundle deserializeEvents(HttpRequest req)
+	private EventMessageBundle deserializeEvents(String json)
 			throws IOException {
-		String json = readRequestBody(req);
+
 		LOG.info("Incoming events: " + json);
 
 		EventMessageBundle bundle = SERIALIZER.fromJson(json,
 				EventMessageBundle.class);
 
-		if (bundle.getRpcServerUrl() == null) {
-			throw new IllegalArgumentException(
-					"RPC server URL is not set in the event bundle.");
-		}
-
-		// Get the OAuth credentials for the given RPC server URL.
-		ConsumerData consumerDataObj = consumerData.get(bundle
-				.getRpcServerUrl());
-		if (consumerDataObj == null && !isUnsignedRequestsAllowed()) {
-			throw new IllegalArgumentException(
-					"No consumer key is found for the RPC server URL: "
-							+ bundle.getRpcServerUrl());
-		}
-
-		// Validates the request.
-		if (consumerDataObj != null) {
-			try {
-				// @SuppressWarnings("unchecked")
-				// Map<String, String[]> parameterMap = req.ParameterMap();
-				HttpParams parameters = req.getParams();
-				// validateOAuthRequest(req.getRequestURL().toString(),
-				// parameters,
-				validateOAuthRequest(
-						"http://wave.googleusercontent.com/api/rpc",
-						parameters, json, consumerDataObj.getConsumerKey(),
-						consumerDataObj.getConsumerSecret());
-			} catch (NoSuchAlgorithmException e) {
-				throw new IllegalArgumentException(
-						"Error validating OAuth request", e);
-			} catch (URISyntaxException e) {
-				throw new IllegalArgumentException(
-						"Error validating OAuth request", e);
-			} catch (OAuthException e) {
-				throw new IllegalArgumentException(
-						"Error validating OAuth request", e);
-			}
-		}
+		/*
+		 * if (bundle.getRpcServerUrl() == null) { throw new
+		 * IllegalArgumentException(
+		 * "RPC server URL is not set in the event bundle."); }
+		 * 
+		 * // Get the OAuth credentials for the given RPC server URL.
+		 * ConsumerData consumerDataObj = consumerData.get(bundle
+		 * .getRpcServerUrl()); if (consumerDataObj == null &&
+		 * !isUnsignedRequestsAllowed()) { throw new IllegalArgumentException(
+		 * "No consumer key is found for the RPC server URL: " +
+		 * bundle.getRpcServerUrl()); }
+		 * 
+		 * // Validates the request. if (consumerDataObj != null) { try { //
+		 * @SuppressWarnings("unchecked") // Map<String, String[]> parameterMap
+		 * = req.ParameterMap(); HttpParams parameters = req.getParams(); //
+		 * validateOAuthRequest(req.getRequestURL().toString(), // parameters,
+		 * validateOAuthRequest( "http://wave.googleusercontent.com/api/rpc",
+		 * parameters, json, consumerDataObj.getConsumerKey(),
+		 * consumerDataObj.getConsumerSecret()); } catch
+		 * (NoSuchAlgorithmException e) { throw new IllegalArgumentException(
+		 * "Error validating OAuth request", e); } catch (URISyntaxException e)
+		 * { throw new IllegalArgumentException(
+		 * "Error validating OAuth request", e); } catch (OAuthException e) {
+		 * throw new IllegalArgumentException( "Error validating OAuth request",
+		 * e); } }
+		 */
 		return bundle;
 	}
 
@@ -939,17 +784,18 @@ public abstract class AbstractWave implements EventHandler {
 	 */
 	private List<JsonRpcResponse> makeRpc(OperationQueue opQueue,
 			String rpcServerUrl) throws IOException {
-//		if (rpcServerUrl == null) {
-//			throw new IllegalStateException("RPC Server URL is not set up.");
-//		}
+		if (rpcServerUrl == null) {
+			throw new IllegalStateException("RPC Server URL is not set up.");
+		}
 
-//		ConsumerData consumerDataObj = consumerData.get(rpcServerUrl);
-//		if (consumerDataObj == null) {
-//			throw new IllegalStateException(
-//					"Consumer key, consumer secret, and  JSON-RPC server URL "
-//							+ "have to be set first, by calling AbstractRobot.setupOAuth(), before invoking "
-//							+ "AbstractRobot.submit().");
-//		}
+		// ConsumerData consumerDataObj = consumerData.get(rpcServerUrl);
+		// if (consumerDataObj == null) {
+		// throw new IllegalStateException(
+		// "Consumer key, consumer secret, and  JSON-RPC server URL "
+		// +
+		// "have to be set first, by calling AbstractRobot.setupOAuth(), before invoking "
+		// + "AbstractRobot.submit().");
+		// }
 
 		String json = SERIALIZER_FOR_ACTIVE_API.toJson(opQueue
 				.getPendingOperations(),
@@ -1014,12 +860,6 @@ public abstract class AbstractWave implements EventHandler {
 	 */
 	private static String readRequestBody(HttpRequest req) throws IOException {
 		StringBuilder json = new StringBuilder();
-		// BufferedReader reader = new BufferedReader(new
-		// InputStreamReader(req.getMessagePayload()));
-		// String line;
-		// while ((line = reader.readLine()) != null) {
-		// json.append(line);
-		// }
 		return json.toString();
 	}
 

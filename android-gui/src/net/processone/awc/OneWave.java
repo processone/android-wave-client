@@ -58,13 +58,7 @@ public class OneWave extends Application {
 	}
 
 	public List<Digest> search(String query) {
-		try {
-			return waveAPI.search("in:inbox", setting.getRpcHandler());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		return waveAPI.search("in:inbox");
 	}
 
 	public Wavelet fetchWavelet(WaveId waveId) throws IOException {
