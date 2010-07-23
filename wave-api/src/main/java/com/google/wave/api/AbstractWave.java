@@ -35,6 +35,7 @@ import org.waveprotocol.wave.model.id.WaveletId;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.wave.api.JsonRpcConstant.ParamsProperty;
+import com.google.wave.api.OperationRequest.Parameter;
 import com.google.wave.api.SearchResult.Digest;
 import com.google.wave.api.event.AnnotatedTextChangedEvent;
 import com.google.wave.api.event.BlipContributorsChangedEvent;
@@ -974,8 +975,9 @@ public abstract class AbstractWave implements EventHandler {
 	public List<Digest> search(String query, String rpcServerUrl)
 			throws IOException {
 
-		ExtendedOperationQueue opQueue = new ExtendedOperationQueue();
-		opQueue.search(query);
+		OperationQueue opQueue = new OperationQueue();
+        opQueue.appendOperation(OperationType.ROBOT_SEARCH, Parameter.of(
+                        ParamsProperty.QUERY, query));
 
 		JsonRpcResponse response = makeRpc(opQueue, rpcServerUrl).get(0);
 		if (response.isError()) {
