@@ -750,6 +750,7 @@ public abstract class AbstractWave implements EventHandler {
 		 * bundle.getRpcServerUrl()); }
 		 * 
 		 * // Validates the request. if (consumerDataObj != null) { try { //
+		 * 
 		 * @SuppressWarnings("unchecked") // Map<String, String[]> parameterMap
 		 * = req.ParameterMap(); HttpParams parameters = req.getParams(); //
 		 * validateOAuthRequest(req.getRequestURL().toString(), // parameters,
@@ -789,14 +790,13 @@ public abstract class AbstractWave implements EventHandler {
 			throw new IllegalStateException("RPC Server URL is not set up.");
 		}
 
-		// ConsumerData consumerDataObj = consumerData.get(rpcServerUrl);
-		// if (consumerDataObj == null) {
-		// throw new IllegalStateException(
-		// "Consumer key, consumer secret, and  JSON-RPC server URL "
-		// +
-		// "have to be set first, by calling AbstractRobot.setupOAuth(), before invoking "
-		// + "AbstractRobot.submit().");
-		// }
+//		ConsumerData consumerDataObj = consumerData.get(rpcServerUrl);
+//		if (consumerDataObj == null) {
+//			throw new IllegalStateException(
+//					"Consumer key, consumer secret, and  JSON-RPC server URL "
+//							+ "have to be set first, by calling AbstractRobot.setupOAuth(), before invoking "
+//							+ "AbstractRobot.submit().");
+//		}
 
 		String json = SERIALIZER_FOR_ACTIVE_API.toJson(opQueue
 				.getPendingOperations(),
@@ -822,7 +822,7 @@ public abstract class AbstractWave implements EventHandler {
 		}
 		return responses;
 	}
-	
+
 	public void send(Wavelet wavelet, String rpcServerUrl) {
 		try {
 			makeRpc(wavelet.getOperationQueue(), rpcServerUrl);
@@ -856,21 +856,6 @@ public abstract class AbstractWave implements EventHandler {
 		// } catch (IOException iox) {
 		// resp.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
 		// }
-	}
-
-	/**
-	 * Reads the given HTTP request's input stream into a string.
-	 * 
-	 * @param req
-	 *            the HTTP request to be read.
-	 * @return a string representation of the given HTTP request's body.
-	 * 
-	 * @throws IOException
-	 *             if there is a problem reading the body.
-	 */
-	private static String readRequestBody(HttpRequest req) throws IOException {
-		StringBuilder json = new StringBuilder();
-		return json.toString();
 	}
 
 	/**
@@ -985,8 +970,8 @@ public abstract class AbstractWave implements EventHandler {
 			throws IOException {
 
 		OperationQueue opQueue = new OperationQueue();
-        opQueue.appendOperation(OperationType.ROBOT_SEARCH, Parameter.of(
-                        ParamsProperty.QUERY, query));
+		opQueue.appendOperation(OperationType.ROBOT_SEARCH, Parameter.of(
+				ParamsProperty.QUERY, query));
 
 		JsonRpcResponse response = makeRpc(opQueue, rpcServerUrl).get(0);
 		if (response.isError()) {

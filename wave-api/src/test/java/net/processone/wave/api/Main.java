@@ -23,13 +23,12 @@ public class Main {
 		settings.setConsumerToken(new Token("anonymous", "anonymous"));
 		settings.setOAuthCallbackUrl("onewavetest://auth");
 
-		OneWaveOAuth oauth = new OneWaveOAuth(settings);
-		WaveAPI api = new WaveAPI(oauth);
+		WaveAPI api = new WaveAPI(settings);
 
 		// Authorization.
 		System.out
 				.println("Navigate to this address in your browser. Press ENTER when you're done:");
-		System.out.println(oauth.getUserAuthorizationUrl());
+		System.out.println(api.getUrl());
 
 		// byte[] buffer = new byte[256];
 		// int r = System.in.read(buffer);
@@ -38,9 +37,7 @@ public class Main {
 
 		System.out.println(settings.getRequestToken());
 
-		oauth.fetchAccessToken();
-		api.setupOAuth(settings.getRequestToken().getPublicKey(), settings
-				.getRequestToken().getSecret());
+		api.start();
 
 		// Search.
 		List<Digest> digests = api.search("title:\"solo para ir probando\"");
@@ -54,11 +51,12 @@ public class Main {
 		Digest digest = digests.get(0);
 
 		Wavelet wavelet = api.fetchWavelet(WaveId.deserialise(digest
-				.getWaveId()), new WaveletId("googlewave.com", "conv+root"),
-				settings.getRpcHandler());
+				.getWaveId()), new WaveletId("googlewave.com", "conv+root"));
 
 		wavelet.reply("\nhola!");
-		
-		api.send(wavelet, settings.getRpcHandler());
+
+		api.send(wavelet);
+
+		api.stop();
 	}
 }
