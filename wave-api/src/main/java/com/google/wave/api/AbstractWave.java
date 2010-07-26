@@ -822,6 +822,15 @@ public abstract class AbstractWave implements EventHandler {
 		}
 		return responses;
 	}
+	
+	public void send(Wavelet wavelet, String rpcServerUrl) {
+		try {
+			makeRpc(wavelet.getOperationQueue(), rpcServerUrl);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Serializes the given outgoing operations into a JSON string, and put it

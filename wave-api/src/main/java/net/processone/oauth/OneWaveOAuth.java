@@ -175,7 +175,7 @@ public class OneWaveOAuth {
 
 			// Make the HTTP call.
 			OAuthMessage response = authClient.access(message,
-					ParameterStyle.BODY);
+					ParameterStyle.AUTHORIZATION_HEADER);
 
 			return response;
 
