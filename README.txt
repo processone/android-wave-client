@@ -1,6 +1,6 @@
 == Setup Notes for Eclipse==
 
-Be prepared to spend 20' going through these steps.  Maven will download all required dependencies,
+Be prepared to invest 20' going through these steps.  Maven will download all required dependencies,
 but the first time you use it, it will start by downloading lots of jars.
 
 
@@ -39,6 +39,10 @@ Now we can move and configure the android app
 
 2) Generate the eclipse project files, executing:
     $mvn eclipse:eclipse
+
+Eclipse can be memory-hungry, so you may find convenient to increase its memory in eclipse.ini,
+using -Xmx512m  (default one in eclipse.ini is probably 256m)
+
 
 3) Now you can import the project into eclipse.
    It will give errors because of an undefined variable "M2_REPO".  Add it:
