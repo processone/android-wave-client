@@ -19,7 +19,8 @@ public class CallbackOAuth extends Activity {
 			ow = (OneWave) getApplication();
 
 			// This should be here, instead a filter may be a better option
-			ow.fetchAccessToken();
+			ow.start();
+			
 			startActivity(new Intent(this, WaveList.class));
 
 		}

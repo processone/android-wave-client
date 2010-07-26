@@ -13,13 +13,13 @@ public class OAuthRedirect extends Activity {
 		setContentView(R.layout.main);
 
 		OneWave ow = (OneWave) getApplication();
-		String url = ow.getUserAuthorizationUrl();
+		String url = ow.getWaveAPI().getUrl();
 
 		if (url == null) {
 			System.out.println("Phone off or Internet access is not allowed");
 			return;
 		}
-		
+
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		i.setData(Uri.parse(url));
 		startActivity(i);

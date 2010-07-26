@@ -22,8 +22,6 @@ public class OneWave extends Application {
 
 	private ClientSettings setting;
 
-	private OneWaveOAuth oAuth;
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -32,9 +30,7 @@ public class OneWave extends Application {
 		setting.setConsumerToken(new Token("anonymous", "anonymous"));
 		setting.setOAuthCallbackUrl("onewavetest://auth");
 
-		oAuth = new OneWaveOAuth(setting);
-
-		waveAPI = new WaveAPI(oAuth);
+		waveAPI = new WaveAPI(setting);
 
 	}
 
@@ -47,16 +43,10 @@ public class OneWave extends Application {
 		return waveAPI;
 	}
 
-	public String getUserAuthorizationUrl() {
-		return oAuth.getUserAuthorizationUrl();
+	public void start(){
+		waveAPI.start();
 	}
-
-	public void fetchAccessToken() {
-		oAuth.fetchAccessToken();
-		waveAPI.setupOAuth(setting.getRequestToken().getPublicKey(), setting
-				.getRequestToken().getSecret());
-	}
-
+	
 	public List<Digest> search(String query) {
 		return waveAPI.search("in:inbox");
 	}
