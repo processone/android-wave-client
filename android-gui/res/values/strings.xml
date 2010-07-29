@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="view_wave">Open</string>
+    <string name="removeFromInbox">Remove from Inbox</string>
+    <string name="follow_wave">Follows</string>
+    <string name="mark_as_read">Mark as Read</string>
     <string name="hello">Hello World, OauthTest!</string>
-    <string name="app_name">oauth-test</string>
+    <string name="app_name">OneWave for Android</string>
 </resources>

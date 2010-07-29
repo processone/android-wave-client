@@ -1,6 +1,7 @@
 package net.processone.awc;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import android.app.Dialog;
@@ -8,23 +9,32 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.text.Html;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.wave.api.SearchResult;
@@ -57,8 +67,10 @@ public class WaveList extends ListActivity {
 		super.onCreate(savedInstanceState);
 
 		ow = (OneWave) getApplication();
+		
 		showDialog(PROGRESS_DIALOG);
 		
+		this.registerForContextMenu(getListView()); // context menu, activated by long pressing
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				dismissDialog(PROGRESS_DIALOG);
@@ -72,8 +84,40 @@ public class WaveList extends ListActivity {
 		};
 
 	}
-	
 
+	/**
+	 * This is for creating context menu of the items in the wave list.
+	 * remove form inbox, show, reply? etc.
+	 */
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	  super.onCreateContextMenu(menu, v, menuInfo);
+	  MenuInflater inflater = getMenuInflater();
+	  inflater.inflate(R.menu.wave_context_menu, menu);
+	  Log.i(TAG, menuInfo.getClass().toString());
+	}
+	
+	/**
+	 * User selects one option of the conext menu
+	 */
+	public boolean onContextItemSelected(MenuItem item) {
+		  AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		  switch (item.getItemId()) {
+		  case R.id.itemFollowWave:
+		    return true;
+		  case R.id.itemRemoveFromInbox:
+		    return true;
+		  case R.id.itemMarkAsRead:
+			  return true;
+		  case R.id.itemView:
+			   return true;
+		  default:
+		    return super.onContextItemSelected(item);
+		  }
+		}
+	
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -161,8 +205,29 @@ public class WaveList extends ListActivity {
 			// wave.getSnippet();
 			
 			
-			TextView t = (TextView) view.findViewById(R.id.titleWave);
-			t.setText(wave.getTitle());
+			TextView title = (TextView) view.findViewById(R.id.titleWave);
+			
+			if (wave.getUnreadCount() > 0) {
+				//Has new content,
+				title.setText((Html.fromHtml("<strong>" + wave.getTitle() +  "</strong>")));
+			} else {
+				title.setText(wave.getTitle());
+			}
+			TextView participants = (TextView) view.findViewById(R.id.participants);
+			StringBuilder b = new StringBuilder("<small>");
+			Iterator<String> it = wave.getParticipants().iterator();
+			while(it.hasNext()) {  //keep only the username
+				String contact = it.next();
+				int i = contact.indexOf("@");
+				if (i >= 0) {
+					contact = contact.substring(0, i);
+				}
+				b.append(contact);
+				if (it.hasNext())
+					b.append(",");
+			}
+			
+			participants.setText(Html.fromHtml(b.append("</small>").toString()) );
 			return view;
 		}
 	}
@@ -224,6 +289,8 @@ public class WaveList extends ListActivity {
 		protected void rebindPendingView(int position, View row) {
 			View child=row.findViewById(R.id.titleWave);
 			child.setVisibility(View.VISIBLE);
+			//MMM... this is probably wrong.. but didn't manage to test it. Probably it must be
+			// analog to what WaveAdapter do with his view
 			((TextView)child).setText(getWrappedAdapter().getItem(position).toString());
 			child=row.findViewById(R.id.throbber);
 			child.setVisibility(View.GONE);

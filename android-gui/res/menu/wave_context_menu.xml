@@ -1,0 +1,5 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"><item android:id="@+id/itemMarkAsRead" android:title="@string/mark_as_read"></item>
+<item android:id="@+id/itemFollowWave" android:title="@string/follow_wave"></item>
+<item android:id="@+id/itemRemoveFromInbox" android:title="@string/removeFromInbox"></item>
+<item android:id="@+id/itemView" android:title="@string/view_wave"></item>
+</menu>
