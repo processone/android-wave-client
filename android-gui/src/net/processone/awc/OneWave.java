@@ -13,6 +13,7 @@ import org.waveprotocol.wave.model.id.WaveletId;
 
 import android.app.Application;
 
+import com.google.wave.api.SearchResult;
 import com.google.wave.api.Wavelet;
 import com.google.wave.api.SearchResult.Digest;
 
@@ -47,8 +48,8 @@ public class OneWave extends Application {
 		waveAPI.start();
 	}
 	
-	public List<Digest> search(String query) {
-		return waveAPI.search("in:inbox");
+	public SearchResult search(String query, int index, int count) {
+		return waveAPI.search("in:inbox", index, count);
 	}
 
 	public Wavelet fetchWavelet(WaveId waveId) throws IOException {

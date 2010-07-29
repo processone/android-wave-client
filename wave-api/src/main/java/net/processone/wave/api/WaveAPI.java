@@ -10,6 +10,7 @@ import net.processone.oauth.ClientSettings;
 import net.processone.oauth.OneWaveOAuth;
 
 import com.google.wave.api.AbstractWave;
+import com.google.wave.api.SearchResult;
 import com.google.wave.api.Wavelet;
 import com.google.wave.api.SearchResult.Digest;
 
@@ -52,9 +53,9 @@ public class WaveAPI extends AbstractWave {
 		return oauth.send(rpcHandler, contentType, jsonBody).readBodyAsString();
 	}
 
-	public List<Digest> search(String query) {
+	public SearchResult search(String query, int index, int numResults) {
 		try {
-			return search(query, settings.getRpcHandler());
+			return search(query,index, numResults, settings.getRpcHandler());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

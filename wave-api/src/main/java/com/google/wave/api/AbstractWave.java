@@ -966,13 +966,19 @@ public abstract class AbstractWave implements EventHandler {
 		message.validateMessage(accessor, new SimpleOAuthValidator());
 	}
 
-	public List<Digest> search(String query, String rpcServerUrl)
+	public SearchResult search(String query, int index, int numResults, String rpcServerUrl)
 			throws IOException {
 
 		OperationQueue opQueue = new OperationQueue();
-		opQueue.appendOperation(OperationType.ROBOT_SEARCH, Parameter.of(
-				ParamsProperty.QUERY, query));
+		opQueue.appendOperation(OperationType.ROBOT_SEARCH, 
+					Parameter.of(ParamsProperty.QUERY, query),
+					Parameter.of(ParamsProperty.INDEX, index),
+					Parameter.of(ParamsProperty.NUM_RESULTS,numResults)
+					);
 
+		
+		
+		
 		JsonRpcResponse response = makeRpc(opQueue, rpcServerUrl).get(0);
 		if (response.isError()) {
 			throw new IOException(response.getErrorMessage());
@@ -983,7 +989,7 @@ public abstract class AbstractWave implements EventHandler {
 		// Deserialize wavelets' digests.
 		SearchResult result = (SearchResult) response.getData().get(
 				ParamsProperty.SEARCH_RESULTS);
-		return result.getDigests();
+		return result; //.getDigests();
 	}
 
 	public abstract String send(String rpcHandler, String contentType,

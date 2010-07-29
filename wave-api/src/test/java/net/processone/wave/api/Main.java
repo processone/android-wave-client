@@ -40,7 +40,7 @@ public class Main {
 		api.start();
 
 		// Search.
-		List<Digest> digests = api.search("title:\"solo para ir probando\"");
+		List<Digest> digests = api.search("title:\"solo para ir probando\"", 0 , 10).getDigests();
 
 		if (digests.size() != 1) {
 			for (Digest digest : digests)
