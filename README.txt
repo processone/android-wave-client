@@ -29,6 +29,9 @@ by the client.
 
    (it is that way,  JAVA_1_5_HOME pointing to a java6 sdk)
 
+   on MacOSX, command is:
+   $mvn clean install -DJAVA_1_5_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
+
 At this point, the google wave api should be installed in your local maven repository.
 Now we can move and configure the android app
 
