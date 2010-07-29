@@ -13,7 +13,7 @@ public class ClientSettings {
 
 	private String oAuthAccessTokenUrl = WaveConstants.OAUTH_ACCESS_TOKEN_URL;
 
-	private String rpcHandler = WaveConstants.RPC_HANDLER;
+	private String rpcUrl = WaveConstants.RPC_HANDLER;
 	
 	private String oAuthCallbackUrl = null;
 	
@@ -81,12 +81,12 @@ public class ClientSettings {
 		this.requestToken = requestToken;
 	}
 
-	public void setRpcHandler(String rpcHandler) {
-		this.rpcHandler = rpcHandler;
+	public void setRpcHandler(String rpcUrl) {
+		this.rpcUrl = rpcUrl;
 	}
 
-	public String getRpcHandler() {
-		return rpcHandler;
+	public String getRpcUrl() {
+		return rpcUrl;
 	}
 
 }

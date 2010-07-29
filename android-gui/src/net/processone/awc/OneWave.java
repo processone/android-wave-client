@@ -1,15 +1,15 @@
 package net.processone.awc;
 
-import java.io.IOException;
-
 import net.processone.oauth.ClientSettings;
 import net.processone.oauth.Token;
 import net.processone.wave.api.OneWaveAPI;
+import net.processone.wave.api.OneWaveException;
 
 import org.waveprotocol.wave.model.id.WaveId;
 import org.waveprotocol.wave.model.id.WaveletId;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.google.wave.api.SearchResult;
 import com.google.wave.api.Wavelet;
@@ -46,24 +46,35 @@ public class OneWave extends Application {
 	}
 
 	public SearchResult search(String query, int index, int count) {
-		return waveAPI.search("in:inbox", index, count);
+		try {
+			return waveAPI.search("in:inbox", index, count);
+		} catch (OneWaveException e) {
+			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
+		}
+		return null;
 	}
 
-	public Wavelet fetchWavelet(WaveId waveId) throws IOException {
+	public Wavelet fetchWavelet(WaveId waveId) {
+		
+		// TODO push this method into OneWaveAPI, this class shouldn't have to
+		// know that conv+root is.
 		return fetchWavelet(waveId,
 				new WaveletId("googlewave.com", "conv+root"), null);
 	}
 
-	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId)
-			throws IOException {
+	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId) {
 		return fetchWavelet(waveId, waveletId, null);
 	}
 
 	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId,
-			String proxyForId) throws IOException {
+			String proxyForId) {
 
-		Wavelet wavelet = waveAPI.fetchWavelet(waveId, waveletId);
+		try {
+			return waveAPI.fetchWavelet(waveId, waveletId);
+		} catch (OneWaveException e) {
+			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
+		}
 
-		return wavelet;
+		return null;
 	}
 }
