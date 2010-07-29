@@ -1,20 +1,19 @@
 package net.processone.wave.api;
 
 import java.io.IOException;
-import java.util.List;
-
-import org.waveprotocol.wave.model.id.WaveId;
-import org.waveprotocol.wave.model.id.WaveletId;
 
 import net.processone.oauth.ClientSettings;
 import net.processone.oauth.OneWaveOAuth;
 
-import com.google.wave.api.AbstractWave;
-import com.google.wave.api.SearchResult;
-import com.google.wave.api.Wavelet;
-import com.google.wave.api.SearchResult.Digest;
+import org.waveprotocol.wave.model.id.WaveId;
+import org.waveprotocol.wave.model.id.WaveletId;
 
-public class WaveAPI extends AbstractWave {
+import com.google.wave.api.ClientWave;
+import com.google.wave.api.SearchResult;
+import com.google.wave.api.Send;
+import com.google.wave.api.Wavelet;
+
+public class OneWaveAPI implements Send {
 
 	private ClientSettings settings;
 
@@ -22,9 +21,13 @@ public class WaveAPI extends AbstractWave {
 
 	private String url;
 
-	public WaveAPI(ClientSettings settings) {
+	private ClientWave clientWave;
+
+	public OneWaveAPI(ClientSettings settings) {
 
 		this.settings = settings;
+
+		clientWave = new ClientWave(this);
 
 		oauth = new OneWaveOAuth(settings);
 
@@ -33,29 +36,16 @@ public class WaveAPI extends AbstractWave {
 
 	public void start() {
 		oauth.fetchAccessToken();
-		setupOAuth(settings.getRequestToken().getPublicKey(), settings
-				.getRequestToken().getSecret());
 	}
 
-	public void setupOAuth(String consumerKey, String consumerSecret,
-			String rpcServerUrl) {
-		super.setupOAuth(consumerKey, consumerSecret, rpcServerUrl);
-	}
-
-	@Override
-	protected void setupVerificationToken(String verificationToken,
-			String securityToken) {
-		super.setupVerificationToken(verificationToken, securityToken);
-	}
-
-	public String send(String rpcHandler, String contentType, String jsonBody)
+	public String request(String rpcHandler, String contentType, String jsonBody)
 			throws IOException {
 		return oauth.send(rpcHandler, contentType, jsonBody).readBodyAsString();
 	}
 
 	public SearchResult search(String query, int index, int numResults) {
 		try {
-			return search(query,index, numResults, settings.getRpcHandler());
+			return clientWave.search(query,index, numResults, settings.getRpcHandler());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,12 +65,12 @@ public class WaveAPI extends AbstractWave {
 	}
 
 	public void send(Wavelet wavelet) {
-		this.send(wavelet, settings.getRpcHandler());
+		clientWave.send(wavelet, settings.getRpcHandler());
 	}
 
 	public Wavelet fetchWavelet(WaveId deserialise, WaveletId waveletId)
 			throws IOException {
-		return this.fetchWavelet(deserialise, waveletId, settings
+		return clientWave.fetchWavelet(deserialise, waveletId, settings
 				.getRpcHandler());
 	}
 }

@@ -3,7 +3,6 @@ package net.processone.wave.api;
 import java.util.List;
 
 import net.processone.oauth.ClientSettings;
-import net.processone.oauth.OneWaveOAuth;
 import net.processone.oauth.Token;
 
 import org.junit.Ignore;
@@ -23,7 +22,7 @@ public class Main {
 		settings.setConsumerToken(new Token("anonymous", "anonymous"));
 		settings.setOAuthCallbackUrl("onewavetest://auth");
 
-		WaveAPI api = new WaveAPI(settings);
+		OneWaveAPI api = new OneWaveAPI(settings);
 
 		// Authorization.
 		System.out

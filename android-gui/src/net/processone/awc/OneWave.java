@@ -1,12 +1,10 @@
 package net.processone.awc;
 
 import java.io.IOException;
-import java.util.List;
 
 import net.processone.oauth.ClientSettings;
-import net.processone.oauth.OneWaveOAuth;
 import net.processone.oauth.Token;
-import net.processone.wave.api.WaveAPI;
+import net.processone.wave.api.OneWaveAPI;
 
 import org.waveprotocol.wave.model.id.WaveId;
 import org.waveprotocol.wave.model.id.WaveletId;
@@ -15,11 +13,10 @@ import android.app.Application;
 
 import com.google.wave.api.SearchResult;
 import com.google.wave.api.Wavelet;
-import com.google.wave.api.SearchResult.Digest;
 
 public class OneWave extends Application {
 
-	private WaveAPI waveAPI;
+	private OneWaveAPI waveAPI;
 
 	private ClientSettings setting;
 
@@ -31,7 +28,7 @@ public class OneWave extends Application {
 		setting.setConsumerToken(new Token("anonymous", "anonymous"));
 		setting.setOAuthCallbackUrl("onewavetest://auth");
 
-		waveAPI = new WaveAPI(setting);
+		waveAPI = new OneWaveAPI(setting);
 
 	}
 
@@ -40,14 +37,14 @@ public class OneWave extends Application {
 		super.onTerminate();
 	}
 
-	public WaveAPI getWaveAPI() {
+	public OneWaveAPI getWaveAPI() {
 		return waveAPI;
 	}
 
-	public void start(){
+	public void start() {
 		waveAPI.start();
 	}
-	
+
 	public SearchResult search(String query, int index, int count) {
 		return waveAPI.search("in:inbox", index, count);
 	}
@@ -65,8 +62,7 @@ public class OneWave extends Application {
 	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId,
 			String proxyForId) throws IOException {
 
-		Wavelet wavelet = waveAPI.fetchWavelet(waveId, waveletId, setting
-				.getRpcHandler());
+		Wavelet wavelet = waveAPI.fetchWavelet(waveId, waveletId);
 
 		return wavelet;
 	}
