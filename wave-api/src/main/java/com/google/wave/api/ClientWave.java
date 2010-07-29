@@ -395,6 +395,10 @@ public class ClientWave {
 		WaveletData waveletData = (WaveletData) response.getData().get(
 				ParamsProperty.WAVELET_DATA);
 		Map<String, Blip> blips = new HashMap<String, Blip>();
+
+		if (waveletData == null)
+			return null;
+
 		Wavelet wavelet = Wavelet.deserialize(opQueue, blips, waveletData);
 
 		// Deserialize blips.
