@@ -35,6 +35,8 @@ public class WaveList extends ListActivity {
 	static final String TAG = WaveList.class.getSimpleName();
 
 	static final int PROGRESS_DIALOG = 0;
+	
+	static final int BATCH_SIZE = 20; //number of waves to retrieve in each batch
 
 	private OneWave ow;
 
@@ -61,7 +63,11 @@ public class WaveList extends ListActivity {
 			public void handleMessage(Message msg) {
 				dismissDialog(PROGRESS_DIALOG);
 				ArrayList<Digest> waveList = (ArrayList<Digest>)msg.obj; //(ArrayList<Digest>)msg.peekData().get(WAVE_LIST_KEY);
-				setListAdapter(new WaveAsyncAdapter(waveList)); //it must be an ArrayList.
+				if (waveList.size() < BATCH_SIZE) {
+					setListAdapter(new WaveAdapter(WaveList.this, waveList)); //it must be an ArrayList.
+				} else {
+					setListAdapter(new WaveAsyncAdapter(waveList)); //it must be an ArrayList.
+				}
 			}
 		};
 
@@ -111,7 +117,7 @@ public class WaveList extends ListActivity {
 		}
 
 		public void run() {
-			SearchResult r = ow.search("in:inbox", 0, 20);
+			SearchResult r = ow.search("in:inbox", 0, BATCH_SIZE);
 			ArrayList<Digest> waveList = new ArrayList<Digest>(r.getDigests()); //it must be an ArrayList, to be able to use it in the ArrayAdapter
 		
 			Message msg = handler.obtainMessage();
@@ -195,17 +201,18 @@ public class WaveList extends ListActivity {
 			int newIndex = this.getWrappedAdapter().getCount();
 			Log.i(TAG, "New Index to query for: " + newIndex);
 		
-			SearchResult r = ow.search("in:inbox", newIndex, 20);
+			SearchResult r = ow.search("in:inbox", newIndex, BATCH_SIZE);
 			waveCache = r.getDigests();
 			Log.i(TAG, "Reported num of results:" + r.getNumResults());
 			Log.i(TAG, "Retrieved results:" + r.getDigests().size());
-			return(r.getNumResults() == 20);  // if there were less returned, then no more messages exists.
+			return(r.getNumResults() == BATCH_SIZE);  // if there were less returned, then no more messages exists.
 		}
 
 		@Override
 		protected View getPendingView(ViewGroup parent) {
 			View row=getLayoutInflater().inflate(R.layout.wavelist, null);
-			View child=row.findViewById(R.id.titleWave);
+			//View child=row.findViewById(R.id.titleWave);
+			View child=row.findViewById(R.id.waveItemRow);
 			child.setVisibility(View.GONE);
 			child=row.findViewById(R.id.throbber);
 			child.setVisibility(View.VISIBLE);
