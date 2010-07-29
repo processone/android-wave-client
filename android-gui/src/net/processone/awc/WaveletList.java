@@ -1,7 +1,5 @@
 package net.processone.awc;
 
-import java.io.IOException;
-
 import org.waveprotocol.wave.model.id.WaveId;
 
 import android.app.Dialog;
@@ -82,17 +80,12 @@ public class WaveletList extends ListActivity {
 		}
 
 		public void run() {
-			try {
-				wavelet = ow.fetchWavelet(waveId);
-				int size  = wavelet.getBlips().size();
-				
-				//This is not ok, blips aren't sorted neither nested, so we can't guarantee an order 
-				arrayBlip = wavelet.getBlips().values().toArray(new Blip[size]);
-				
+			wavelet = ow.fetchWavelet(waveId);
+			int size = wavelet.getBlips().size();
 
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			// This is not ok, blips aren't sorted neither nested, so we can't
+			// guarantee an order
+			arrayBlip = wavelet.getBlips().values().toArray(new Blip[size]);
 
 			Message msg = handler.obtainMessage();
 

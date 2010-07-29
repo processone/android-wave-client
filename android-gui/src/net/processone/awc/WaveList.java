@@ -11,20 +11,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
 
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.wave.api.SearchResult;
@@ -32,26 +27,27 @@ import com.google.wave.api.SearchResult.Digest;
 
 public class WaveList extends ListActivity {
 	
-	static final String TAG = WaveList.class.getSimpleName();
+	private static final String TAG = WaveList.class.getSimpleName();
 
-	static final int PROGRESS_DIALOG = 0;
+	private static final int PROGRESS_DIALOG = 0;
 	
-	static final int BATCH_SIZE = 20; //number of waves to retrieve in each batch
+	/**
+	 * Number of waves to retrieve in each batch. Value 20.
+	 */
+	private static final int BATCH_SIZE = 20; 
 
 	private OneWave ow;
-
 
 	private ProgressDialog progressDialog;
 
 	private FetchWavesThread progressThread;
 
-	// Define the Handler that receives messages from the thread and update the
-	// UI
+	/**
+	 * Define the Handler that receives messages from the thread and update the
+	 * UI.
+	 */
 	private Handler handler;
 	
-
-	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,17 +58,17 @@ public class WaveList extends ListActivity {
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				dismissDialog(PROGRESS_DIALOG);
-				ArrayList<Digest> waveList = (ArrayList<Digest>)msg.obj; //(ArrayList<Digest>)msg.peekData().get(WAVE_LIST_KEY);
+				ArrayList<Digest> waveList = (ArrayList<Digest>) msg.obj; 
 				if (waveList.size() < BATCH_SIZE) {
-					setListAdapter(new WaveAdapter(WaveList.this, waveList)); //it must be an ArrayList.
+					// It must be an ArrayList.
+					setListAdapter(new WaveAdapter(WaveList.this, waveList));
 				} else {
-					setListAdapter(new WaveAsyncAdapter(waveList)); //it must be an ArrayList.
+					// It must be an ArrayList.
+					setListAdapter(new WaveAsyncAdapter(waveList)); 
 				}
 			}
 		};
-
 	}
-	
 
 	@Override
 	protected void onResume() {
@@ -85,7 +81,7 @@ public class WaveList extends ListActivity {
 		case PROGRESS_DIALOG:
 			progressDialog = new ProgressDialog(WaveList.this);
 			progressDialog.setMessage("Loading waves. Please wait...");
-			progressThread = new FetchWavesThread(handler);
+			progressThread = new FetchWavesThread();
 			progressThread.start();
 			return progressDialog;
 		default:
@@ -103,25 +99,21 @@ public class WaveList extends ListActivity {
 		i.putExtra("waveId", waveId);
 		
 		startActivity(i);
-
 	}
-
 	
 	/**
-	 * Background task to retrieve all Waves
+	 * Background task to retrieve all Waves.
 	 */
 	private class FetchWavesThread extends Thread {
 
-		public FetchWavesThread(Handler h) {
-			
-		}
-
 		public void run() {
 			SearchResult r = ow.search("in:inbox", 0, BATCH_SIZE);
-			ArrayList<Digest> waveList = new ArrayList<Digest>(r.getDigests()); //it must be an ArrayList, to be able to use it in the ArrayAdapter
+			// It must be an ArrayList, to be able to use it in the ArrayAdapter
+			ArrayList<Digest> waveList = new ArrayList<Digest>(r.getDigests());
 		
 			Message msg = handler.obtainMessage();
-			msg.obj = waveList; //TODO:  it has a bundle object..
+			//TODO:  it has a bundle object..
+			msg.obj = waveList; 
 			Log.i(TAG, "Reported num of results:" + r.getNumResults());
 			Log.i(TAG, "Retrieved results:" + r.getDigests().size());
 			
@@ -130,14 +122,14 @@ public class WaveList extends ListActivity {
 	}
 
 	/**
-	 * Adapter class to transform Wave bean representation in to Android structure
-	 * 
-	 * 
+	 * Adapter class to transform Wave bean representation in to Android
+	 * structure.
 	 */
 	public static class WaveAdapter extends ArrayAdapter<Digest> {
 
 		public WaveAdapter(Context c, ArrayList<Digest> list) {
-			super(c,0, list); //second parameter won't be used, we redefine getView
+			// Second parameter won't be used, we redefine getView.
+			super(c,0, list); 
 		}
 
 		@Override
@@ -149,26 +141,21 @@ public class WaveList extends ListActivity {
 						.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				view = inflater.inflate(R.layout.wavelist, null);
 			} else {
-				// Use convertView if it is available
+				// Use convertView if it is available.
 				view = convertView;
 			}
 			
 			Digest wave = getItem(position);
 
-			
 			// wave.getParticipants();
 			// wave.getLastModified();
 			// wave.getSnippet();
-			
 			
 			TextView t = (TextView) view.findViewById(R.id.titleWave);
 			t.setText(wave.getTitle());
 			return view;
 		}
 	}
-	
-	
-	
 	
 	class WaveAsyncAdapter extends EndlessAdapter {
 		private RotateAnimation rotate=null;
@@ -177,7 +164,9 @@ public class WaveList extends ListActivity {
 		
 		public WaveAsyncAdapter(ArrayList<Digest> list) {
 			super(new WaveAdapter(WaveList.this, list));
-			rotate=new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,	0.5f);
+			rotate = new RotateAnimation(0f, 360f, 
+					Animation.RELATIVE_TO_SELF, 0.5f, 
+					Animation.RELATIVE_TO_SELF,	0.5f);
 			rotate.setDuration(600);
 			rotate.setRepeatMode(Animation.RESTART);
 			rotate.setRepeatCount(Animation.INFINITE);
@@ -185,7 +174,7 @@ public class WaveList extends ListActivity {
 
 		@Override
 		protected void appendCachedData() {
-			ArrayAdapter<Digest> a=(ArrayAdapter<Digest>)getWrappedAdapter();
+			ArrayAdapter<Digest> a = (ArrayAdapter<Digest>) getWrappedAdapter();
 			for (Digest item : waveCache) {
 				a.add(item);
 			}
@@ -205,7 +194,8 @@ public class WaveList extends ListActivity {
 			waveCache = r.getDigests();
 			Log.i(TAG, "Reported num of results:" + r.getNumResults());
 			Log.i(TAG, "Retrieved results:" + r.getDigests().size());
-			return(r.getNumResults() == BATCH_SIZE);  // if there were less returned, then no more messages exists.
+			// If there were less returned, then no more messages exists.
+			return(r.getNumResults() == BATCH_SIZE);
 		}
 
 		@Override
@@ -228,9 +218,6 @@ public class WaveList extends ListActivity {
 			child=row.findViewById(R.id.throbber);
 			child.setVisibility(View.GONE);
 			child.clearAnimation();
-			
 		}
-		
 	}
-
 }

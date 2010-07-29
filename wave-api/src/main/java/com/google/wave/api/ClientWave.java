@@ -24,16 +24,12 @@ import com.google.wave.api.impl.WaveletData;
 
 public class ClientWave {
 
-	/** Some mime types. */
-	public static final String JSON_MIME_TYPE = "application/json; charset=utf-8";
-
-	private static final Logger LOG = Logger.getLogger(ClientWave.class
-			.getName());
+	// Constants.
 	private static final String ACTIVE_API_OPERATION_NAMESPACE = "wave";
-
-	/** Serializer to serialize events and operations in active mode. */
 	private static final Gson SERIALIZER_FOR_ACTIVE_API;
 
+	// Static constructor.
+	// Required to extends Gson serialization.
 	static {
 		GsonFactory factory = new GsonFactory();
 		factory.registerTypeAdapter(SearchResult.class,
@@ -43,12 +39,28 @@ public class ClientWave {
 				.create(ACTIVE_API_OPERATION_NAMESPACE);
 	}
 
-	private boolean allowUnsignedRequests = true;
+	/**
+	 * Logger for this class.
+	 */
+	private static final Logger LOG = Logger.getLogger(ClientWave.class
+			.getName());
 
-	private Send send;
+	/**
+	 * Callback that provides JSON requests.
+	 */
+	public static interface JSONRpcHandler {
 
-	public ClientWave(Send send) {
-		this.send = send;
+		public String request(String jsonBody) throws Exception;
+
+	}
+
+	/**
+	 * Instance for the JSON handler.
+	 */
+	private final JSONRpcHandler jsonHandler;
+
+	public ClientWave(JSONRpcHandler jsonHandler) {
+		this.jsonHandler = jsonHandler;
 	}
 
 	/**
@@ -56,21 +68,16 @@ public class ClientWave {
 	 * 
 	 * @param wavelet
 	 *            the bundle that contains the operations to be submitted.
-	 * @param rpcServerUrl
-	 *            the active gateway to send the operations to.
 	 * @return a list of {@link JsonRpcResponse} that represents the responses
 	 *         from the server for all operations that were submitted.
 	 * 
-	 * @throws IllegalStateException
-	 *             if this method is called prior to setting the proper consumer
-	 *             key, secret, and handler URL.
-	 * @throws IOException
+	 * @throws ClientWaveException
 	 *             if there is a problem submitting the operations.
 	 */
-	public List<JsonRpcResponse> submit(Wavelet wavelet, String rpcServerUrl)
-			throws IOException {
+	public List<JsonRpcResponse> submit(Wavelet wavelet)
+			throws ClientWaveException {
 		OperationQueue opQueue = wavelet.getOperationQueue();
-		List<JsonRpcResponse> responses = makeRpc(opQueue, rpcServerUrl);
+		List<JsonRpcResponse> responses = makeRpc(opQueue);
 		wavelet.getOperationQueue().clear();
 		return responses;
 	}
@@ -94,7 +101,8 @@ public class ClientWave {
 	 *            the id of the wavelet.
 	 * @return a stub of a wavelet.
 	 */
-	public Wavelet blindWavelet(WaveId waveId, WaveletId waveletId) {
+	public Wavelet blindWavelet(WaveId waveId, WaveletId waveletId)
+			throws ClientWaveException {
 		return blindWavelet(waveId, waveletId, null);
 	}
 
@@ -124,7 +132,7 @@ public class ClientWave {
 	 * @return a stub of a wavelet.
 	 */
 	public Wavelet blindWavelet(WaveId waveId, WaveletId waveletId,
-			String proxyForId) {
+			String proxyForId) throws ClientWaveException {
 		return blindWavelet(waveId, waveletId, proxyForId,
 				new HashMap<String, Blip>());
 	}
@@ -143,7 +151,7 @@ public class ClientWave {
 	 * its queue with another wavelet, for example, the event wavelet.
 	 * 
 	 * @param waveId
-	 *            the id of the wave.
+	 *            , String rpcServerUrl the id of the wave.
 	 * @param waveletId
 	 *            the id of the wavelet.
 	 * @param proxyForId
@@ -154,10 +162,11 @@ public class ClientWave {
 	 *            details).
 	 * @param blips
 	 *            a collection of blips that belong to this wavelet.
-	 * @return a stub of a wavelet.
+	 * @return a stub of asend wavelet.
 	 */
 	public Wavelet blindWavelet(WaveId waveId, WaveletId waveletId,
-			String proxyForId, Map<String, Blip> blips) {
+			String proxyForId, Map<String, Blip> blips)
+			throws ClientWaveException {
 		Util.checkIsValidProxyForId(proxyForId);
 		Map<String, String> roles = new HashMap<String, String>();
 		return new Wavelet(waveId, waveletId, null, Collections
@@ -184,7 +193,8 @@ public class ClientWave {
 	 *            creator of the wave, will be added by default. The order of
 	 *            the participants will be preserved.
 	 */
-	public Wavelet newWave(String domain, Set<String> participants) {
+	public Wavelet newWave(String domain, Set<String> participants)
+			throws ClientWaveException {
 		return newWave(domain, participants, null);
 	}
 
@@ -215,7 +225,7 @@ public class ClientWave {
 	 *            {@link Util#checkIsValidProxyForId(String)} for more details).
 	 */
 	public Wavelet newWave(String domain, Set<String> participants,
-			String proxyForId) {
+			String proxyForId) throws ClientWaveException {
 		return newWave(domain, participants, "", proxyForId);
 	}
 
@@ -249,7 +259,7 @@ public class ClientWave {
 	 *            {@link Util#checkIsValidProxyForId(String)} for more details).
 	 */
 	public Wavelet newWave(String domain, Set<String> participants, String msg,
-			String proxyForId) {
+			String proxyForId) throws ClientWaveException {
 		Util.checkIsValidProxyForId(proxyForId);
 		return new OperationQueue(proxyForId).createWavelet(domain,
 				participants, msg);
@@ -283,46 +293,36 @@ public class ClientWave {
 	 *            parameter should be properly encoded to ensure that the
 	 *            resulting participant id is valid (see
 	 *            {@link Util#checkIsValidProxyForId(String)} for more details).
-	 * @param rpcServerUrl
-	 *            if specified, this operation will be submitted immediately to
-	 *            this active gateway, that will return immediately the actual
-	 *            wave id, the id of the root wavelet, and id of the root blip.
 	 * 
 	 * @throws IOException
 	 *             if there is a problem submitting the operation to the server,
 	 *             when {@code submit} is {@code true}.
 	 */
-	public Wavelet newWave(String domain, Set<String> participants, String msg,
-			String proxyForId, String rpcServerUrl) throws IOException {
+	public Wavelet newWaveWithSubmit(String domain, Set<String> participants,
+			String msg, String proxyForId) throws ClientWaveException {
 		Util.checkIsValidProxyForId(proxyForId);
 		OperationQueue opQueue = new OperationQueue(proxyForId);
 		Wavelet newWavelet = opQueue.createWavelet(domain, participants, msg);
 
-		if (rpcServerUrl != null && !(rpcServerUrl.length() == 0)) {
-			// Get the response for the robot.fetchWavelet() operation, which is
-			// the
-			// second operation, since makeRpc prepends the robot.notify()
-			// operation.
-			JsonRpcResponse response = this.submit(newWavelet, rpcServerUrl)
-					.get(1);
-			if (response.isError()) {
-				throw new IOException(response.getErrorMessage());
-			}
-			WaveId waveId = WaveId.deserialise((String) response.getData().get(
-					ParamsProperty.WAVE_ID));
-			WaveletId waveletId = WaveletId.deserialise((String) response
-					.getData().get(ParamsProperty.WAVELET_ID));
-			String rootBlipId = (String) response.getData().get(
-					ParamsProperty.BLIP_ID);
-
-			Map<String, Blip> blips = new HashMap<String, Blip>();
-			Map<String, String> roles = new HashMap<String, String>();
-
-			newWavelet = new Wavelet(waveId, waveletId, rootBlipId,
-					participants, roles, blips, opQueue);
-
-			blips.put(rootBlipId, new Blip(rootBlipId, "", null, newWavelet));
+		JsonRpcResponse response = submit(newWavelet).get(1);
+		if (response.isError()) {
+			throw new ClientWaveException(response.getErrorMessage());
 		}
+		WaveId waveId = WaveId.deserialise((String) response.getData().get(
+				ParamsProperty.WAVE_ID));
+		WaveletId waveletId = WaveletId.deserialise((String) response.getData()
+				.get(ParamsProperty.WAVELET_ID));
+		String rootBlipId = (String) response.getData().get(
+				ParamsProperty.BLIP_ID);
+
+		Map<String, Blip> blips = new HashMap<String, Blip>();
+		Map<String, String> roles = new HashMap<String, String>();
+
+		newWavelet = new Wavelet(waveId, waveletId, rootBlipId, participants,
+				roles, blips, opQueue);
+
+		blips.put(rootBlipId, new Blip(rootBlipId, "", null, newWavelet));
+
 		return newWavelet;
 	}
 
@@ -342,15 +342,13 @@ public class ClientWave {
 	 *            the id of the wave to fetch.
 	 * @param waveletId
 	 *            the id of the wavelet to fetch.
-	 * @param rpcServerUrl
-	 *            the active gateway that is used to fetch the wavelet.
 	 * 
 	 * @throws IOException
 	 *             if there is a problem fetching the wavelet.
 	 */
-	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId,
-			String rpcServerUrl) throws IOException {
-		return fetchWavelet(waveId, waveletId, null, rpcServerUrl);
+	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId)
+			throws ClientWaveException {
+		return fetchWavelet(waveId, waveletId, null);
 	}
 
 	/**
@@ -374,14 +372,12 @@ public class ClientWave {
 	 *            note that this parameter should be properly encoded to ensure
 	 *            that the resulting participant id is valid (see
 	 *            {@link Util#checkIsValidProxyForId(String)} for more details).
-	 * @param rpcServerUrl
-	 *            the active gateway that is used to fetch the wavelet.
 	 * 
 	 * @throws IOException
 	 *             if there is a problem fetching the wavelet.
 	 */
 	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId,
-			String proxyForId, String rpcServerUrl) throws IOException {
+			String proxyForId) throws ClientWaveException {
 		Util.checkIsValidProxyForId(proxyForId);
 		OperationQueue opQueue = new OperationQueue(proxyForId);
 		opQueue.fetchWavelet(waveId, waveletId);
@@ -389,9 +385,9 @@ public class ClientWave {
 		// Get the response for the robot.fetchWavelet() operation, which is the
 		// second operation, since makeRpc prepends the robot.notify()
 		// operation.
-		JsonRpcResponse response = makeRpc(opQueue, rpcServerUrl).get(0);
+		JsonRpcResponse response = makeRpc(opQueue).get(0);
 		if (response.isError()) {
-			throw new IOException(response.getErrorMessage());
+			throw new ClientWaveException(response.getErrorMessage());
 		}
 
 		// Deserialize wavelet.
@@ -414,30 +410,6 @@ public class ClientWave {
 	}
 
 	/**
-	 * Sets whether or not unsigned incoming requests from robot proxy are
-	 * allowed.
-	 * 
-	 * @param allowUnsignedRequests
-	 *            whether or not unsigned requests from robot proxy are allowed.
-	 */
-	protected void setAllowUnsignedRequests(boolean allowUnsignedRequests) {
-		if (!allowUnsignedRequests) {
-			throw new IllegalArgumentException(
-					"Please call AbstractRobot.setupOAuth() first to "
-							+ "setup the consumer key and secret to validate the request.");
-		}
-		this.allowUnsignedRequests = allowUnsignedRequests;
-	}
-
-	/**
-	 * @return {@code true} if unsigned incoming requests from robot proxy are
-	 *         allowed.
-	 */
-	protected boolean isUnsignedRequestsAllowed() {
-		return allowUnsignedRequests;
-	}
-
-	/**
 	 * Submits the given operations.
 	 * 
 	 * @param opQueue
@@ -454,20 +426,22 @@ public class ClientWave {
 	 * @throws IOException
 	 *             if there is a problem submitting the operations.
 	 */
-	private List<JsonRpcResponse> makeRpc(OperationQueue opQueue,
-			String rpcServerUrl) throws IOException {
-		if (rpcServerUrl == null) {
-			throw new IllegalStateException("RPC Server URL is not set up.");
-		}
+	private List<JsonRpcResponse> makeRpc(OperationQueue opQueue)
+			throws ClientWaveException {
 
-		String json = SERIALIZER_FOR_ACTIVE_API.toJson(opQueue
+		String body = SERIALIZER_FOR_ACTIVE_API.toJson(opQueue
 				.getPendingOperations(),
 				new TypeToken<List<OperationRequest>>() {
 				}.getType());
 
-		LOG.info("JSON request to be sent: " + json);
+		LOG.info("JSON request to be sent: " + body);
 
-		String responseString = send.request(rpcServerUrl, JSON_MIME_TYPE, json);
+		String responseString;
+		try {
+			responseString = jsonHandler.request(body);
+		} catch (Exception e) {
+			throw new ClientWaveException(e);
+		}
 
 		LOG.info("Response returned: " + responseString);
 
@@ -485,19 +459,21 @@ public class ClientWave {
 		return responses;
 	}
 
-	public void send(Wavelet wavelet, String rpcServerUrl) {
-		try {
-			// TODO makeRpc return a list of JsonRpcResponse, we need to do here
-			// a GsonAdaptor
-			makeRpc(wavelet.getOperationQueue(), rpcServerUrl);
-		} catch (IOException e) {
-			// TODO Also do some here
-			e.printStackTrace();
-		}
-	}
-
-	public SearchResult search(String query, int index, int numResults,
-			String rpcServerUrl) throws IOException {
+	/**
+	 * Performs a full-text search for waves.
+	 * 
+	 * @param query
+	 *            the query. For example: "in:inbox" or "tile:hello".
+	 * @param index
+	 *            the index to start from (paging support).
+	 * @param numResults
+	 *            the total results to fetch (paging support).
+	 * @return a search results instance.
+	 * @throws ClientWaveException
+	 *             if an error happens during json rpc.
+	 */
+	public SearchResult search(String query, int index, int numResults)
+			throws ClientWaveException {
 
 		OperationQueue opQueue = new OperationQueue();
 		opQueue.appendOperation(OperationType.ROBOT_SEARCH, Parameter.of(
@@ -505,14 +481,13 @@ public class ClientWave {
 				ParamsProperty.INDEX, index), Parameter.of(
 				ParamsProperty.NUM_RESULTS, numResults));
 
-		JsonRpcResponse response = makeRpc(opQueue, rpcServerUrl).get(0);
+		JsonRpcResponse response = makeRpc(opQueue).get(0);
 		if (response.isError()) {
-			throw new IOException(response.getErrorMessage());
+			throw new ClientWaveException(response.getErrorMessage());
 		}
 
 		opQueue.clear();
 
-		// Deserialize wavelets' digests.
 		SearchResult result = (SearchResult) response.getData().get(
 				ParamsProperty.SEARCH_RESULTS);
 		return result;
