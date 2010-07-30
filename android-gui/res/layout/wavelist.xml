@@ -24,17 +24,24 @@
 								android:gravity="center_vertical"
 								android:ellipsize="marquee"
 								android:singleLine="true"
+								android:textStyle="bold"
 								android:id="@+id/titleWave" />
 						<TextView android:id="@+id/participants" 
 								android:layout_width="fill_parent" 
 								android:layout_weight="1"
+								android:textSize="10px"
 								android:layout_height="0dip"
 								android:gravity="center_vertical"
 								android:ellipsize="marquee"
 								android:singleLine="true"/>
-						
-						
 		</LinearLayout>
+	    <TextView android:text="@+id/unread" 
+		          android:id="@+id/unread" 
+		          android:textStyle="bold"
+		          android:paddingRight="2px"
+		          android:layout_width="wrap_content" 
+		          android:layout_height="wrap_content"/>
+							              
 	</LinearLayout>
 	<ImageView android:id="@+id/throbber"
     			android:layout_width="wrap_content"
