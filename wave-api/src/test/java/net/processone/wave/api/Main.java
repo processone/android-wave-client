@@ -1,6 +1,8 @@
 package net.processone.wave.api;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.processone.oauth.ClientSettings;
 import net.processone.oauth.Token;
@@ -38,8 +40,24 @@ public class Main {
 
 		api.start();
 
+		Set<String> participants = new HashSet<String>();
+		participants.add("mschonaker@googlewave.com");
+		participants.add("pablo.polvorin@googlewave.com");
+		participants.add("vidalsantiagomartinez@googlewave.com");
+		Wavelet wavelet = api.newWavelet(participants);
+		wavelet.setTitle("Created programmatically");
+		wavelet.getRootBlip().appendMarkup(
+				String.format("<h1 style=\"color:blue\">Checkout class <span style=\"color:red\">%s</span>!</h1>", Main.class.getName()));
+		api.send(wavelet);
+
+		api.stop();
+	}
+
+	public static void fetchAndReply(OneWaveAPI api, String title,
+			String message) throws OneWaveException {
 		// Search.
-		List<Digest> digests = api.search("title:\"solo para ir probando\"", 0 , 10).getDigests();
+		List<Digest> digests = api.search("title:\"" + title + "\"", 0, 10)
+				.getDigests();
 
 		if (digests.size() != 1) {
 			for (Digest digest : digests)
@@ -52,10 +70,7 @@ public class Main {
 		Wavelet wavelet = api.fetchWavelet(WaveId.deserialise(digest
 				.getWaveId()), new WaveletId("googlewave.com", "conv+root"));
 
-		wavelet.reply("\nhola!");
-
+		wavelet.reply("\n" + message);
 		api.send(wavelet);
-
-		api.stop();
 	}
 }

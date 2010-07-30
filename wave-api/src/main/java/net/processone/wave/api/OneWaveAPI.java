@@ -1,5 +1,7 @@
 package net.processone.wave.api;
 
+import java.util.Set;
+
 import net.processone.oauth.ClientSettings;
 import net.processone.oauth.OneWaveOAuth;
 
@@ -13,7 +15,7 @@ import com.google.wave.api.Wavelet;
 import com.google.wave.api.ClientWave.JSONRpcHandler;
 
 /**
- * Facade class for the whole Wave API. 
+ * Facade class for the whole Wave API.
  */
 public class OneWaveAPI {
 
@@ -29,8 +31,8 @@ public class OneWaveAPI {
 
 			public String request(String jsonBody) throws Exception {
 
-				return oauth.send(settings.getRpcUrl(),
-						JSON_MIME_TYPE, jsonBody).readBodyAsString();
+				return oauth.send(settings.getRpcUrl(), JSON_MIME_TYPE,
+						jsonBody).readBodyAsString();
 			}
 		});
 
@@ -70,6 +72,14 @@ public class OneWaveAPI {
 			throws OneWaveException {
 		try {
 			return clientWave.fetchWavelet(waveId, waveletId);
+		} catch (ClientWaveException e) {
+			throw new OneWaveException(e);
+		}
+	}
+
+	public Wavelet newWavelet(Set<String> participants) throws OneWaveException {
+		try {
+			return clientWave.newWave("googlewave.com", participants);
 		} catch (ClientWaveException e) {
 			throw new OneWaveException(e);
 		}
