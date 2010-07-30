@@ -22,6 +22,7 @@ public class CallbackOAuth extends Activity {
 			ow.start();
 			
 			startActivity(new Intent(this, WaveList.class));
+			finish(); //TODO: this is ugly
 
 		}
 	}

@@ -23,7 +23,7 @@ public class OAuthRedirect extends Activity {
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		i.setData(Uri.parse(url));
 		startActivity(i);
-
+		finish(); //TODO this is ugly
 	}
 
 	@Override
