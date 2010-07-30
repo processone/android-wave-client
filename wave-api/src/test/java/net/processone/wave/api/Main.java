@@ -9,7 +9,6 @@ import net.processone.oauth.Token;
 
 import org.junit.Ignore;
 import org.waveprotocol.wave.model.id.WaveId;
-import org.waveprotocol.wave.model.id.WaveletId;
 
 import com.google.wave.api.Wavelet;
 import com.google.wave.api.SearchResult.Digest;
@@ -46,8 +45,13 @@ public class Main {
 		participants.add("vidalsantiagomartinez@googlewave.com");
 		Wavelet wavelet = api.newWavelet(participants);
 		wavelet.setTitle("Created programmatically");
-		wavelet.getRootBlip().appendMarkup(
-				String.format("<h1 style=\"color:blue\">Checkout class <span style=\"color:red\">%s</span>!</h1>", Main.class.getName()));
+		wavelet
+				.getRootBlip()
+				.appendMarkup(
+						String
+								.format(
+										"<h1 style=\"color:blue\">Checkout class <span style=\"color:red\">%s</span>!</h1>",
+										Main.class.getName()));
 		api.send(wavelet);
 
 		api.stop();
@@ -68,7 +72,7 @@ public class Main {
 		Digest digest = digests.get(0);
 
 		Wavelet wavelet = api.fetchWavelet(WaveId.deserialise(digest
-				.getWaveId()), new WaveletId("googlewave.com", "conv+root"));
+				.getWaveId()));
 
 		wavelet.reply("\n" + message);
 		api.send(wavelet);

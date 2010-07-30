@@ -19,7 +19,9 @@ import com.google.wave.api.ClientWave.JSONRpcHandler;
  */
 public class OneWaveAPI {
 
-	public static final String JSON_MIME_TYPE = "application/json; charset=utf-8";
+	private static final String DOMAIN = "googlewave.com";
+
+	private static final String JSON_MIME_TYPE = "application/json; charset=utf-8";
 
 	private OneWaveOAuth oauth;
 
@@ -68,6 +70,10 @@ public class OneWaveAPI {
 		}
 	}
 
+	public Wavelet fetchWavelet(WaveId waveId) throws OneWaveException {
+		return fetchWavelet(waveId, new WaveletId(DOMAIN, "conv+root"));
+	}
+
 	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId)
 			throws OneWaveException {
 		try {
@@ -79,7 +85,7 @@ public class OneWaveAPI {
 
 	public Wavelet newWavelet(Set<String> participants) throws OneWaveException {
 		try {
-			return clientWave.newWave("googlewave.com", participants);
+			return clientWave.newWave(DOMAIN, participants);
 		} catch (ClientWaveException e) {
 			throw new OneWaveException(e);
 		}

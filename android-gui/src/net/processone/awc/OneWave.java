@@ -56,18 +56,16 @@ public class OneWave extends Application {
 
 	public Wavelet fetchWavelet(WaveId waveId) {
 		
-		// TODO push this method into OneWaveAPI, this class shouldn't have to
-		// know that conv+root is.
-		return fetchWavelet(waveId,
-				new WaveletId("googlewave.com", "conv+root"), null);
+		try {
+			return waveAPI.fetchWavelet(waveId);
+		} catch (OneWaveException e) {
+			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
+		}
+
+		return null;
 	}
 
 	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId) {
-		return fetchWavelet(waveId, waveletId, null);
-	}
-
-	public Wavelet fetchWavelet(WaveId waveId, WaveletId waveletId,
-			String proxyForId) {
 
 		try {
 			return waveAPI.fetchWavelet(waveId, waveletId);
