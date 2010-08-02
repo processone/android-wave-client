@@ -124,7 +124,7 @@ public class WaveList extends ListActivity {
 		switch (id) {
 		case PROGRESS_DIALOG:
 			progressDialog = new ProgressDialog(WaveList.this);
-			progressDialog.setMessage("Loading waves. Please wait...");
+			progressDialog.setMessage("Loading your inbox. Please wait...");
 			progressThread = new FetchWavesThread();
 			progressThread.start();
 			return progressDialog;
@@ -267,26 +267,29 @@ public class WaveList extends ListActivity {
 
 		@Override
 		protected View getPendingView(ViewGroup parent) {
+			
 			View row = getLayoutInflater().inflate(R.layout.wavelist, null);
-			// View child=row.findViewById(R.id.titleWave);
-			View child = row.findViewById(R.id.waveItemRow);
-			child.setVisibility(View.GONE);
-			child = row.findViewById(R.id.throbber);
+			row.findViewById(R.id.titleWave).setVisibility(View.GONE);
+			row.findViewById(R.id.participants).setVisibility(View.GONE);
+			row.findViewById(R.id.unread).setVisibility(View.GONE);
+			row.findViewById(R.id.imgWave).setVisibility(View.GONE);
+			
+			View child = row.findViewById(R.id.throbber);
 			child.setVisibility(View.VISIBLE);
 			child.startAnimation(rotate);
+			
 			return (row);
 		}
 
 		@Override
 		protected void rebindPendingView(int position, View row) {
-			View child = row.findViewById(R.id.titleWave);
-			child.setVisibility(View.VISIBLE);
-			// MMM... this is probably wrong.. but didn't manage to test it.
-			// Probably it must be
-			// analog to what WaveAdapter do with his view
-			((TextView) child).setText(getWrappedAdapter().getItem(position)
-					.toString());
-			child = row.findViewById(R.id.throbber);
+			
+			row.findViewById(R.id.titleWave).setVisibility(View.VISIBLE);
+			row.findViewById(R.id.participants).setVisibility(View.VISIBLE);
+			row.findViewById(R.id.unread).setVisibility(View.VISIBLE);
+			row.findViewById(R.id.imgWave).setVisibility(View.VISIBLE);
+
+			View child = row.findViewById(R.id.throbber);
 			child.setVisibility(View.GONE);
 			child.clearAnimation();
 		}

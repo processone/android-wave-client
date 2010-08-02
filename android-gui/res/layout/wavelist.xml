@@ -1,52 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_height="fill_parent" 
-	android:layout_width="fill_parent">
-	<LinearLayout android:id="@+id/waveItemRow"
-				  android:layout_width="fill_parent"
-				  android:layout_height="?android:attr/listPreferredItemHeight"
-				  android:padding="6dip">
-		<ImageView android:id="@+id/imgWave"
-    				android:layout_width="wrap_content"
-    				android:layout_height="wrap_content"
-    				android:layout_marginRight="6dip"
-					android:src="@drawable/wave_icon"/>
-		<LinearLayout
-        			android:orientation="vertical"
-			        android:layout_width="0dip"
-        			android:layout_weight="1"
-        			android:layout_height="fill_parent">
-				  
-						<TextView android:text="@+id/title" 
-								android:layout_width="fill_parent" 
-								android:layout_weight="1"
-								android:layout_height="0dip"
-								android:gravity="center_vertical"
-								android:ellipsize="marquee"
-								android:singleLine="true"
-								android:textStyle="bold"
-								android:id="@+id/titleWave" />
-						<TextView android:id="@+id/participants" 
-								android:layout_width="fill_parent" 
-								android:layout_weight="1"
-								android:textSize="10px"
-								android:layout_height="0dip"
-								android:gravity="center_vertical"
-								android:ellipsize="marquee"
-								android:singleLine="true"/>
-		</LinearLayout>
-	    <TextView android:text="@+id/unread" 
-		          android:id="@+id/unread" 
-		          android:textStyle="bold"
-		          android:paddingRight="2px"
-		          android:layout_width="wrap_content" 
-		          android:layout_height="wrap_content"/>
-							              
-	</LinearLayout>
-	<ImageView android:id="@+id/throbber"
-    			android:layout_width="wrap_content"
-    			android:layout_height="wrap_content"
-				android:src="@drawable/ic_popup_sync_1"
-			android:visibility="gone"/>
-</FrameLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="6dip"
+    android:id="@+id/waveItemRow">
+    
+    <ImageView android:id="@+id/imgWave"
+   			   android:layout_width="wrap_content"
+   			   android:layout_height="fill_parent"
+   			   android:layout_marginRight="6dip"
+   			   android:layout_alignParentTop="true"
+       		   android:layout_alignParentBottom="true"
+ 		       android:src="@drawable/wave_icon"/>
+    
+    <TextView android:id="@+id/titleWave"
+    		  android:text="@+id/titleWave" 
+    	      android:layout_width="fill_parent"
+    	      android:layout_height="wrap_content"
+    	      android:layout_toRightOf="@id/imgWave"
+    	      android:layout_alignParentRight="true"
+    	      android:layout_alignParentTop="true"
+    	      android:layout_alignWithParentIfMissing="true"
+    		  android:gravity="center_vertical"
+    		  android:textStyle="bold"/>								
+ 
+    <TextView android:id="@+id/participants"
+    		  android:text="@+id/participants" 
+    		  android:layout_width="fill_parent"
+    	      android:layout_height="fill_parent"
+    		  android:layout_toRightOf="@id/imgWave"
+    	      android:layout_alignParentBottom="true"
+    	      android:layout_alignParentRight="true"
+    		  android:singleLine="true"
+    		  android:ellipsize="marquee"
+    		  android:textSize="10px"
+    		  android:gravity="center_vertical"
+              android:layout_below="@id/titleWave"/>
+ 
+    <TextView android:text="@+id/unread" 
+              android:id="@+id/unread" 
+              android:textStyle="bold"
+              android:layout_toLeftOf="@id/titleWave"
+              android:layout_alignParentTop="true"
+    		  android:layout_alignParentRight="true"
+              android:paddingRight="2px"
+              android:layout_width="wrap_content" 
+              android:layout_height="wrap_content"/>
+              
+ 				              
+    <ImageView android:id="@+id/throbber"
+       		   android:layout_width="wrap_content"
+       		   android:layout_height="wrap_content"
+    		   android:src="@drawable/ic_popup_sync_1"
+    		   android:visibility="gone"/>
+       
+</RelativeLayout>
         
