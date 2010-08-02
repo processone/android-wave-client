@@ -1,5 +1,7 @@
 package net.processone.awc;
 
+import java.util.Set;
+
 import net.processone.oauth.ClientSettings;
 import net.processone.oauth.Token;
 import net.processone.wave.api.OneWaveAPI;
@@ -54,8 +56,22 @@ public class OneWave extends Application {
 		return null;
 	}
 
+	public void createWave(String subject, Set<String> participants,
+			String message) {
+
+		try {
+			Wavelet w = waveAPI.newWavelet(participants);
+			w.setTitle(subject);
+			w.getRootBlip().appendMarkup(message);
+			waveAPI.send(w);
+		} catch (OneWaveException e) {
+			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
+		}
+
+	}
+
 	public Wavelet fetchWavelet(WaveId waveId) {
-		
+
 		try {
 			return waveAPI.fetchWavelet(waveId);
 		} catch (OneWaveException e) {

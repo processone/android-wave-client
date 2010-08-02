@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout android:id="@+id/RelativeLayout01"
+ android:layout_width="wrap_content" android:layout_height="wrap_content"
+ xmlns:android="http://schemas.android.com/apk/res/android">
+
+ <TextView android:id="@+id/subjectLabel" 
+           android:text="Subject"
+           android:layout_toLeftOf="@+id/subject"
+           android:layout_height="wrap_content" 
+           android:gravity="center_vertical"
+           android:paddingRight="5px"
+           android:paddingTop="5px"
+           android:layout_width="wrap_content"/>
+  
+
+ <EditText android:id="@+id/subject" 
+           android:layout_width="fill_parent"
+           android:layout_height="wrap_content"
+           android:layout_toRightOf="@+id/participanlabel"
+           android:gravity="top"/>
+ 
+ <TextView android:text="Participants" 
+           android:id="@+id/participanlabel"
+           android:layout_below="@+id/subject"
+           android:layout_width="wrap_content"
+           android:gravity="center_vertical"
+           android:paddingRight="5px"
+           android:paddingTop="5px" 
+           android:layout_height="wrap_content"/>
+
+ <EditText android:layout_toRightOf="@+id/participanlabel"
+           android:layout_width="fill_parent"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/subject"
+           android:id="@+id/participants"/>
+
+ <TextView android:id="@+id/messageLabel" 
+           android:text="Message"
+           android:layout_below="@+id/participants"
+           android:layout_height="wrap_content" 
+           android:layout_toLeftOf="@+id/message"
+           android:gravity="center_vertical"
+           android:paddingRight="5px"
+           android:paddingTop="5px"
+           android:layout_width="wrap_content"/>
+  
+
+ <EditText android:id="@+id/message" 
+           android:lines="10" 
+           android:layout_toRightOf="@+id/participanlabel"
+           android:layout_height="100dip" 
+           android:layout_width="fill_parent"
+           android:inputType="textMultiLine"
+           android:gravity="top"
+           android:layout_below="@+id/participants" />
+
+
+ <Button android:text="Create" 
+         android:layout_toRightOf="@+id/messageLabel"
+         android:id="@+id/create" 
+         android:layout_below="@+id/message"
+         android:layout_height="wrap_content" 
+         android:layout_width="wrap_content"/>
+
+
+</RelativeLayout>
+

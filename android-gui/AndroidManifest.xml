@@ -39,7 +39,12 @@
 				<category android:name="android.intent.category.DEFAULT"></category>
 				<action android:name="android.intent.action.VIEW"></action>
 			</intent-filter>
-		</activity>
-	</application>
+		
+</activity>
+	<activity android:name="NewWave"><intent-filter><action android:name="android.intent.action.VIEW"></action>
+<category android:name="android.intent.category.DEFAULT"></category>
+</intent-filter>
+</activity>
+</application>
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 </manifest> 

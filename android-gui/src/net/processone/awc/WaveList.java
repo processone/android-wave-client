@@ -90,6 +90,9 @@ public class WaveList extends ListActivity {
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch(item.getItemId()) {
         case R.id.newWave:
+        	
+			startActivity(new Intent(this, NewWave.class));
+
             return true;
         case R.id.refresh:
         	showDialog(RELOAD);
