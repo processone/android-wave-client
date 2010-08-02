@@ -15,6 +15,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,19 +37,16 @@ public class WaveList extends ListActivity {
 	private static final String TAG = WaveList.class.getSimpleName();
 
 	private static final int PROGRESS_DIALOG = 0;
+	private static final int RELOAD = 1;
 
-	/**
+	/*
 	 * Number of waves to retrieve in each batch. Value 20.
 	 */
 	private static final int BATCH_SIZE = 20;
 
 	private OneWave ow;
 
-	private ProgressDialog progressDialog;
-
-	private FetchWavesThread progressThread;
-
-	/**
+	/*
 	 * Define the Handler that receives messages from the thread and update the
 	 * UI.
 	 */
@@ -62,23 +60,46 @@ public class WaveList extends ListActivity {
 
 		showDialog(PROGRESS_DIALOG);
 
-		this.registerForContextMenu(getListView()); // context menu, activated
-		// by long pressing
+		registerForContextMenu(getListView()); // context menu, activated by long pressing
+		
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
-				dismissDialog(PROGRESS_DIALOG);
 				ArrayList<Digest> waveList = (ArrayList<Digest>) msg.obj;
 				if (waveList.size() < BATCH_SIZE) {
 					// It must be an ArrayList.
 					setListAdapter(new WaveAdapter(WaveList.this, waveList));
-				} else {
-					// It must be an ArrayList.
-					setListAdapter(new WaveAsyncAdapter(waveList));
+					return;
 				}
+				
+				// It must be an ArrayList.
+				setListAdapter(new WaveAsyncAdapter(waveList));
+				
 			}
 		};
 	}
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.wave_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        switch(item.getItemId()) {
+        case R.id.newWave:
+            return true;
+        case R.id.refresh:
+        	showDialog(RELOAD);
+            return true;
+        }
+       
+        return super.onMenuItemSelected(featureId, item);
+    }
+
+	
 	/**
 	 * This is for creating context menu of the items in the wave list. remove
 	 * form inbox, show, reply? etc.
@@ -123,11 +144,17 @@ public class WaveList extends ListActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case PROGRESS_DIALOG:
-			progressDialog = new ProgressDialog(WaveList.this);
+			ProgressDialog progressDialog = new ProgressDialog(WaveList.this);
 			progressDialog.setMessage("Loading your inbox. Please wait...");
-			progressThread = new FetchWavesThread();
+			FetchWavesThread progressThread = new FetchWavesThread(PROGRESS_DIALOG);
 			progressThread.start();
 			return progressDialog;
+		case RELOAD :
+			ProgressDialog reloadDialog = new ProgressDialog(WaveList.this);
+			reloadDialog.setMessage("Reloading your inbox. Please wait...");
+			FetchWavesThread reloadThread = new FetchWavesThread(RELOAD);
+			reloadThread.start();
+			return reloadDialog;
 		default:
 			return null;
 		}
@@ -149,7 +176,12 @@ public class WaveList extends ListActivity {
 	 * Background task to retrieve all Waves.
 	 */
 	private class FetchWavesThread extends Thread {
-
+		private int dialogId;
+		
+		public FetchWavesThread(int dialogId) {
+			this.dialogId = dialogId;
+		}
+		
 		public void run() {
 			SearchResult r = ow.search("in:inbox", 0, BATCH_SIZE);
 			// It must be an ArrayList, to be able to use it in the ArrayAdapter
@@ -159,7 +191,9 @@ public class WaveList extends ListActivity {
 			msg.obj = waveList;
 			Log.i(TAG, "Reported num of results:" + r.getNumResults());
 			Log.i(TAG, "Retrieved results:" + r.getDigests().size());
-
+			
+			removeDialog(dialogId);
+			
 			handler.sendMessage(msg);
 		}
 	}
@@ -248,11 +282,11 @@ public class WaveList extends ListActivity {
 			Log.i(TAG, "New size: " + a.getCount());
 		}
 
-		@Override
 		/*
 		 * Note that this is executed in a separate thread, we don't need to
 		 * spawn it ourselves
 		 */
+		@Override
 		protected boolean cacheInBackground() {
 			int newIndex = this.getWrappedAdapter().getCount();
 			Log.i(TAG, "New Index to query for: " + newIndex);

@@ -81,6 +81,10 @@ public class WaveletList extends ListActivity {
 
 		public void run() {
 			wavelet = ow.fetchWavelet(waveId);
+			
+			if (wavelet == null)
+				return;
+			
 			int size = wavelet.getBlips().size();
 
 			// This is not ok, blips aren't sorted neither nested, so we can't
