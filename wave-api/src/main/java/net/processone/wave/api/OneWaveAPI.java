@@ -10,6 +10,7 @@ import org.waveprotocol.wave.model.id.WaveletId;
 
 import com.google.wave.api.ClientWave;
 import com.google.wave.api.ClientWaveException;
+import com.google.wave.api.FolderAction;
 import com.google.wave.api.SearchResult;
 import com.google.wave.api.Wavelet;
 import com.google.wave.api.ClientWave.JSONRpcHandler;
@@ -90,6 +91,38 @@ public class OneWaveAPI {
 	public Wavelet newWavelet(Set<String> participants) throws OneWaveException {
 		try {
 			return clientWave.newWave(DOMAIN, participants);
+		} catch (ClientWaveException e) {
+			throw new OneWaveException(e);
+		}
+	}
+	
+	public void markAsRead(WaveId waveId) throws OneWaveException {
+		try {
+			clientWave.folder(FolderAction.MARK_AS_READ, waveId);
+		} catch (ClientWaveException e) {
+			throw new OneWaveException(e);
+		}
+	}
+
+	public void markAsUnread(WaveId waveId) throws OneWaveException {
+		try {
+			clientWave.folder(FolderAction.MARK_AS_UNREAD, waveId);
+		} catch (ClientWaveException e) {
+			throw new OneWaveException(e);
+		}
+	}
+
+	public void mute(WaveId waveId) throws OneWaveException {
+		try {
+			clientWave.folder(FolderAction.MUTE, waveId);
+		} catch (ClientWaveException e) {
+			throw new OneWaveException(e);
+		}
+	}
+
+	public void archive(WaveId waveId) throws OneWaveException {
+		try {
+			clientWave.folder(FolderAction.ARCHIVE, waveId);
 		} catch (ClientWaveException e) {
 			throw new OneWaveException(e);
 		}

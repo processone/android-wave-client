@@ -496,4 +496,22 @@ public class ClientWave {
 				ParamsProperty.SEARCH_RESULTS);
 		return result;
 	}
+	
+	public void folder(FolderAction action, WaveId waveId)
+			throws ClientWaveException {
+
+		OperationQueue opQueue = new OperationQueue();
+		opQueue.appendOperation(OperationType.ROBOT_FOLDER_ACTION, Parameter
+				.of(ParamsProperty.MODIFY_HOW, action.toString()), Parameter
+				.of(ParamsProperty.WAVE_ID, waveId.serialise()));
+
+		JsonRpcResponse response = makeRpc(opQueue).get(0);
+		if (response.isError()) {
+			throw new ClientWaveException(response.getErrorMessage());
+		}
+
+		opQueue.clear();
+
+		// return something?
+	}
 }

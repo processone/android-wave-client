@@ -26,7 +26,7 @@ public class Main {
 		// int r = System.in.read(buffer);
 		// String callbackUrl = new String(buffer, 0, r);
 		System.in.read();
-		
+
 		api.start();
 
 		Set<String> participants = new HashSet<String>();
@@ -66,5 +66,16 @@ public class Main {
 
 		wavelet.reply("\n" + message);
 		api.send(wavelet);
+	}
+
+	public static void markRead(OneWaveAPI api) throws OneWaveException {
+		List<Digest> digests = api.search("title:\"tagman\"", 0, 10)
+				.getDigests();
+
+		WaveId id = WaveId.deserialise(digests.get(0).getWaveId());
+
+		api.markAsRead(id);
+
+		api.stop();
 	}
 }
