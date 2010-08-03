@@ -4,9 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.processone.oauth.ClientSettings;
-import net.processone.oauth.Token;
-
 import org.junit.Ignore;
 import org.waveprotocol.wave.model.id.WaveId;
 
@@ -18,12 +15,7 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 
-		// Component setup.
-		ClientSettings settings = new ClientSettings();
-		settings.setConsumerToken(new Token("anonymous", "anonymous"));
-		settings.setOAuthCallbackUrl("onewavetest://auth");
-
-		OneWaveAPI api = new OneWaveAPI(settings);
+		OneWaveAPI api = new OneWaveAPI();
 
 		// Authorization.
 		System.out
@@ -34,9 +26,7 @@ public class Main {
 		// int r = System.in.read(buffer);
 		// String callbackUrl = new String(buffer, 0, r);
 		System.in.read();
-
-		System.out.println(settings.getRequestToken());
-
+		
 		api.start();
 
 		Set<String> participants = new HashSet<String>();

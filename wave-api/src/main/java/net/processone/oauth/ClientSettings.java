@@ -15,9 +15,9 @@ public class ClientSettings {
 
 	private String rpcUrl = WaveConstants.RPC_HANDLER;
 	
-	private String oAuthCallbackUrl = null;
+	private String oAuthCallbackUrl = "onewavetest://auth";
 	
-	private Token consumerToken;
+	private Token consumerToken = new Token("anonymous", "anonymous");
 
 	private Token requestToken;
 

@@ -41,6 +41,10 @@ public class OneWaveAPI {
 		oauth = new OneWaveOAuth(settings);
 	}
 
+	public OneWaveAPI() {
+		this(new ClientSettings());
+	}
+
 	public void start() {
 		oauth.fetchAccessToken();
 	}
