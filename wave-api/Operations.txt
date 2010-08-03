@@ -86,8 +86,8 @@ Blip.insertInlineBlip(int)
 
 document.insertInlineBlipAfterElement - UNSUPPORTED
 
-robot.folderAction - UNSUPPORTED
-But documented here: http://code.google.com/apis/wave/wavedata/
+robot.folderAction - SUPPORTED
+Implemented as in: http://code.google.com/apis/wave/wavedata/protocol.html
 
 robot.createWavelet - SUPPORTED
 WaveAPI.newWavelet(String, Set<String>, String, String)
@@ -99,4 +99,5 @@ robot.notify - UNSUPPORTED
 
 robot.search - SUPPORTED
 WaveAPI.search(String)
-Implemented as described in: http://code.google.com/apis/wave/wavedata/
+Implemented as described in: 
+http://code.google.com/apis/wave/wavedata/protocol.html
