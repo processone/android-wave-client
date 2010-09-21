@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.google.wave.api.SearchResult;
 import com.google.wave.api.Wavelet;
+import com.google.wave.api.SearchResult.Digest;
 
 public class OneWave extends Application {
 
@@ -90,5 +91,26 @@ public class OneWave extends Application {
 		}
 
 		return null;
+	}
+	
+	public void removeWave(String waveId){
+		WaveId w = WaveId.deserialise(waveId);
+		removeWave(w);
+	}
+	
+	public void removeWave(WaveId waveId){
+		try {
+			waveAPI.remove(waveId);
+		} catch (OneWaveException e) {
+			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
+		}
+	}
+	
+	public void removeWave(Digest digest) {
+		try {
+			waveAPI.remove(digest);
+		} catch (OneWaveException e) {
+			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
+		}
 	}
 }

@@ -2,4 +2,5 @@
 <item android:id="@+id/itemFollowWave" android:title="@string/follow_wave"></item>
 <item android:id="@+id/itemRemoveFromInbox" android:title="@string/removeFromInbox"></item>
 <item android:id="@+id/itemView" android:title="@string/view_wave"></item>
+
 </menu>

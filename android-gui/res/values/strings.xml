@@ -4,6 +4,8 @@
     <string name="removeFromInbox">Remove from Inbox</string>
     <string name="follow_wave">Follows</string>
     <string name="mark_as_read">Mark as Read</string>
+    <string name="add_particiant">Add participant</string>
     <string name="hello">Hello World, OauthTest!</string>
     <string name="app_name">OneWave for Android</string>
+    
 </resources>

@@ -60,8 +60,9 @@ public class WaveList extends ListActivity {
 
 		showDialog(PROGRESS_DIALOG);
 
-		registerForContextMenu(getListView()); // context menu, activated by long pressing
-		
+		registerForContextMenu(getListView()); // context menu, activated by
+												// long pressing
+
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				ArrayList<Digest> waveList = (ArrayList<Digest>) msg.obj;
@@ -70,39 +71,37 @@ public class WaveList extends ListActivity {
 					setListAdapter(new WaveAdapter(WaveList.this, waveList));
 					return;
 				}
-				
+
 				// It must be an ArrayList.
 				setListAdapter(new WaveAsyncAdapter(waveList));
-				
+
 			}
 		};
 	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.wave_menu, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.wave_menu, menu);
+		return true;
+	}
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        switch(item.getItemId()) {
-        case R.id.newWave:
-        	
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.newWave:
+
 			startActivity(new Intent(this, NewWave.class));
+			return true;
+		case R.id.refresh:
+			showDialog(RELOAD);
+			return true;
+		}
 
-            return true;
-        case R.id.refresh:
-        	showDialog(RELOAD);
-            return true;
-        }
-       
-        return super.onMenuItemSelected(featureId, item);
-    }
+		return super.onMenuItemSelected(featureId, item);
+	}
 
-	
 	/**
 	 * This is for creating context menu of the items in the wave list. remove
 	 * form inbox, show, reply? etc.
@@ -126,8 +125,10 @@ public class WaveList extends ListActivity {
 		case R.id.itemFollowWave:
 			return true;
 		case R.id.itemRemoveFromInbox:
+			removeWave(getListView(), info.position);
 			return true;
 		case R.id.itemMarkAsRead:
+			markAsRead(getListView(), info.position);
 			return true;
 		case R.id.itemView:
 			onListItemClick(getListView(), info.targetView, info.position,
@@ -138,21 +139,16 @@ public class WaveList extends ListActivity {
 		}
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-	}
-
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case PROGRESS_DIALOG:
 			ProgressDialog progressDialog = new ProgressDialog(WaveList.this);
 			progressDialog.setMessage("Loading your inbox. Please wait...");
-			FetchWavesThread progressThread = new FetchWavesThread(PROGRESS_DIALOG);
+			FetchWavesThread progressThread = new FetchWavesThread(
+					PROGRESS_DIALOG);
 			progressThread.start();
 			return progressDialog;
-		case RELOAD :
+		case RELOAD:
 			ProgressDialog reloadDialog = new ProgressDialog(WaveList.this);
 			reloadDialog.setMessage("Reloading your inbox. Please wait...");
 			FetchWavesThread reloadThread = new FetchWavesThread(RELOAD);
@@ -175,16 +171,26 @@ public class WaveList extends ListActivity {
 		startActivity(i);
 	}
 
+	private void removeWave(ListView listView, int position) {
+		Digest wave = (Digest) listView.getItemAtPosition(position);
+		ow.removeWave(wave);
+	}
+
+	private void markAsRead(ListView listView, int position) {
+		Digest wave = (Digest) listView.getItemAtPosition(position);
+		ow.removeWave(wave);
+	}
+
 	/**
 	 * Background task to retrieve all Waves.
 	 */
 	private class FetchWavesThread extends Thread {
 		private int dialogId;
-		
+
 		public FetchWavesThread(int dialogId) {
 			this.dialogId = dialogId;
 		}
-		
+
 		public void run() {
 			SearchResult r = ow.search("in:inbox", 0, BATCH_SIZE);
 			// It must be an ArrayList, to be able to use it in the ArrayAdapter
@@ -194,9 +200,9 @@ public class WaveList extends ListActivity {
 			msg.obj = waveList;
 			Log.i(TAG, "Reported num of results:" + r.getNumResults());
 			Log.i(TAG, "Retrieved results:" + r.getDigests().size());
-			
+
 			removeDialog(dialogId);
-			
+
 			handler.sendMessage(msg);
 		}
 	}
@@ -304,23 +310,23 @@ public class WaveList extends ListActivity {
 
 		@Override
 		protected View getPendingView(ViewGroup parent) {
-			
+
 			View row = getLayoutInflater().inflate(R.layout.wavelist, null);
 			row.findViewById(R.id.titleWave).setVisibility(View.GONE);
 			row.findViewById(R.id.participants).setVisibility(View.GONE);
 			row.findViewById(R.id.unread).setVisibility(View.GONE);
 			row.findViewById(R.id.imgWave).setVisibility(View.GONE);
-			
+
 			View child = row.findViewById(R.id.throbber);
 			child.setVisibility(View.VISIBLE);
 			child.startAnimation(rotate);
-			
+
 			return (row);
 		}
 
 		@Override
 		protected void rebindPendingView(int position, View row) {
-			
+
 			row.findViewById(R.id.titleWave).setVisibility(View.VISIBLE);
 			row.findViewById(R.id.participants).setVisibility(View.VISIBLE);
 			row.findViewById(R.id.unread).setVisibility(View.VISIBLE);

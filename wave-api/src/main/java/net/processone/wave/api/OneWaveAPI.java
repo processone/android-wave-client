@@ -14,6 +14,7 @@ import com.google.wave.api.FolderAction;
 import com.google.wave.api.SearchResult;
 import com.google.wave.api.Wavelet;
 import com.google.wave.api.ClientWave.JSONRpcHandler;
+import com.google.wave.api.SearchResult.Digest;
 
 /**
  * Facade class for the whole Wave API.
@@ -95,7 +96,7 @@ public class OneWaveAPI {
 			throw new OneWaveException(e);
 		}
 	}
-	
+
 	public void markAsRead(WaveId waveId) throws OneWaveException {
 		try {
 			clientWave.folder(FolderAction.MARK_AS_READ, waveId);
@@ -127,4 +128,13 @@ public class OneWaveAPI {
 			throw new OneWaveException(e);
 		}
 	}
+
+	public void remove(WaveId waveId) throws OneWaveException {
+
+	}
+
+	public void remove(Digest wave) throws OneWaveException {
+		remove(new WaveId(DOMAIN, wave.getWaveId()));
+	}
+	
 }
