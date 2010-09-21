@@ -1,5 +1,8 @@
 package net.processone.awc;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.waveprotocol.wave.model.id.WaveId;
 
 import android.app.Dialog;
@@ -81,19 +84,37 @@ public class WaveletList extends ListActivity {
 
 		public void run() {
 			wavelet = ow.fetchWavelet(waveId);
-			
+
 			if (wavelet == null)
 				return;
-			
-			int size = wavelet.getBlips().size();
 
-			// This is not ok, blips aren't sorted neither nested, so we can't
-			// guarantee an order
-			arrayBlip = wavelet.getBlips().values().toArray(new Blip[size]);
+			List<Blip> sorted = new LinkedList<Blip>();
+
+			dfs(wavelet.getRootBlip(), sorted);
+
+			arrayBlip = sorted.toArray(new Blip[sorted.size()]);
 
 			Message msg = handler.obtainMessage();
 
 			handler.sendMessage(msg);
+		}
+
+		private void dfs(Blip blip, List<Blip> sorted) {
+
+			sorted.add(blip);
+
+			List<Blip> children = blip.getChildBlips();
+			int totalChildren = children.size();
+
+			if (totalChildren == 0)
+				return;
+
+			if (totalChildren == 1)
+				dfs(children.get(0), sorted);
+
+			for (int i = 1; i < totalChildren; i++)
+				dfs(children.get(i), sorted);
+			dfs(children.get(0), sorted);
 		}
 	}
 
@@ -131,7 +152,7 @@ public class WaveletList extends ListActivity {
 				// Use convertView if it is available
 				view = convertView;
 			}
-			
+
 			TextView t = (TextView) view.findViewById(R.id.titleWavelet);
 			t.setText(arrayBlip[position].getContent());
 			return view;
