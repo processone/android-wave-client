@@ -178,7 +178,7 @@ public class WaveList extends ListActivity {
 
 	private void markAsRead(ListView listView, int position) {
 		Digest wave = (Digest) listView.getItemAtPosition(position);
-		ow.removeWave(wave);
+		ow.markAsRead(wave.getWaveId());
 	}
 
 	/**
@@ -232,10 +232,8 @@ public class WaveList extends ListActivity {
 
 			// wave.getLastModified();
 			// wave.getSnippet();
-			// <- may be a good idea is to put that info, that we already had
-			// available to the user in some way, altough no idea how, we
-			// don't have much space.
-
+			// <- may be a good idea is to put that info too.
+			
 			TextView title = (TextView) convertView
 					.findViewById(R.id.titleWave);
 			title.setText(wave.getTitle());

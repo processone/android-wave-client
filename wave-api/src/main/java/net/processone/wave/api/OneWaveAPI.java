@@ -64,7 +64,7 @@ public class OneWaveAPI {
 		return oauth.getUserAuthorizationUrl();
 	}
 
-	public void stop() throws OneWaveException {
+	public void stop() {
 		oauth = null;
 	}
 
@@ -128,13 +128,4 @@ public class OneWaveAPI {
 			throw new OneWaveException(e);
 		}
 	}
-
-	public void remove(WaveId waveId) throws OneWaveException {
-
-	}
-
-	public void remove(Digest wave) throws OneWaveException {
-		remove(new WaveId(DOMAIN, wave.getWaveId()));
-	}
-	
 }

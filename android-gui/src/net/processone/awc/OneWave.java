@@ -92,25 +92,40 @@ public class OneWave extends Application {
 
 		return null;
 	}
+
+	public void markAsRead(String waveId){
+		WaveId w = WaveId.deserialise(waveId);
+		markAsRead(w);
+	}
+
 	
-	public void removeWave(String waveId){
+	public void markAsRead(WaveId waveId){
+		try {
+			waveAPI.markAsRead(waveId);
+		} catch (OneWaveException e) {
+			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
+		}
+	}
+	
+	public void removeWave(String waveId) {
 		WaveId w = WaveId.deserialise(waveId);
 		removeWave(w);
 	}
-	
-	public void removeWave(WaveId waveId){
+
+	public void removeWave(WaveId waveId) {
 		try {
-			waveAPI.remove(waveId);
+			/*
+			 * TODO: Remove method is not implemented at API level yet, so this
+			 * method will "remove" your wave from your inbox but it won't be
+			 * placed into trash folder
+			 */
+			waveAPI.archive(waveId);
 		} catch (OneWaveException e) {
 			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
 		}
 	}
-	
+
 	public void removeWave(Digest digest) {
-		try {
-			waveAPI.remove(digest);
-		} catch (OneWaveException e) {
-			Log.e(getClass().getName(), e.getLocalizedMessage(), e);
-		}
+		removeWave(digest.getWaveId());
 	}
 }
