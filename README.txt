@@ -5,7 +5,7 @@ that will take time if you don't have Maven already installed.
 
 Two code repositories are needed to build this project:
 
-* git+ssh://git@gitorious.process-one.net/wave-api/wave-api.git
+* git+ssh://git@gitorious.process-one.net/android-wave/google-wave-api.git
 
 Contains Google Wave Robot API and Wave Model projects backported to Java 5 
 (Android only accepts Java 5 files and original code is written for Java 6).
@@ -14,7 +14,7 @@ From this repository we need the "backport" branch. So this command may be
 necessary:
 git checkout -b backport origin/backport
 
-* git+ssh://git@gitorious.process-one.net/wave-api/android-wave-client.git
+* git+ssh://git@gitorious.process-one.net/android-wave/android-wave-client.git
 The Android client itself. Requires the APIs from wave-api project listed above.
 
 
